@@ -552,7 +552,8 @@ const Grad = (() => {
   function replyFor(q) {
     const hit = CHAT.find(([re]) => re.test(q));
     if (hit) return hit[1];
-    if (sp.dataset.mode === 'walk') return S.reply;
+    // in a walkthrough, the scenario's own follow-up answers questions like its suggestion chips; anything else is unknown
+    if (sp.dataset.mode === 'walk' && /again|why|happen|break|else|test|owns?\b/i.test(q)) return S.reply;
     return { twin: null, status: 'unknown', text: 'No twin covers this yet, so I won’t guess. I’ve added it to the Question Queue, and the senior who answers teaches their twin too.' };
   }
 
