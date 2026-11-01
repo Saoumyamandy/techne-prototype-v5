@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Techne</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,400;8..144,500;8..144,600&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,300..500,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@material/web@2.5.0/typography/md-typescale-styles.css">
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="m3.css">
+<link rel="stylesheet" href="m3-grad.css">
+<link rel="stylesheet" href="m3-mobile.css">
+<link rel="stylesheet" href="m3-shell.css">
+<!-- Material Web from a CDN import map, so there's still no build step -->
+<script type="importmap">{ "imports": { "@material/web/": "https://esm.run/@material/web@2.5.0/" } }</script>
+<script type="module" src="m3.js"></script>
+</head>
+<body>
+
+<!-- prototype controls, not part of Techne itself; H hides it -->
+<header class="pbar" id="pbar"></header>
+
+<main class="app">
+
+  <!-- ───────────── NEW GRAD: Techne web IDE ───────────── -->
+  <section class="screen grad m3" id="grad" hidden>
+    <div class="ide wi" id="ide">
+      <div class="wi-top"></div>
+      <nav class="wi-rail" aria-label="Techne"></nav>
+      <aside class="wi-side" id="side" aria-label="Side bar"></aside>
+
+      <div class="main wi-main">
+        <div class="wi-tabs" role="tablist" aria-label="Open editors"></div>
+
+        <div class="body" id="body">
+          <div class="work" id="work">
+            <div class="editor" id="editor"></div>
+            <div class="term" id="term">
+              <div class="term-tabs">
+                <md-tabs class="g-ttabs" aria-label="Panels">
+                  <md-secondary-tab active><md-icon slot="icon">terminal</md-icon>Terminal</md-secondary-tab>
+                  <md-secondary-tab inert>Problems<span class="g-count" id="problems" hidden>1</span></md-secondary-tab>
+                  <md-secondary-tab inert>Output</md-secondary-tab>
+                </md-tabs>
+                <span class="term-right" id="term-right">zsh · procurement-core</span>
+                <span class="g-help" id="help-term"><md-filled-tonal-button><md-icon slot="icon">support</md-icon>Need help</md-filled-tonal-button></span>
+              </div>
+              <div class="term-body" id="term-body"></div>
+            </div>
+            <span class="g-corner" id="help-corner"><md-fab variant="primary" aria-label="Get help"><md-icon slot="icon">support</md-icon></md-fab></span>
+          </div>
+          <div class="divider" id="divider" hidden><i></i></div>
+          <aside class="sp" id="sp" hidden></aside>
+        </div>
+
+        <!-- Home and the other new grad screens open here as editor tabs -->
+        <div class="gpage" id="gpage" hidden></div>
+      </div>
+
+      <footer class="wi-status" aria-label="Status bar"></footer>
+    </div>
+
+    <div class="guide-layer" id="guide-layer">
+      <svg class="connector" id="connector"></svg>
+    </div>
+    <div class="g-modal" id="grad-modal" hidden></div>
+  </section>
+
+  <!-- ───────────── SENIOR: the same web IDE ───────────── -->
+  <section class="screen senior m3" id="senior" hidden>
+    <div class="wi" id="swi">
+      <div class="wi-top"></div>
+      <nav class="wi-rail" aria-label="Techne"></nav>
+      <aside class="wi-side" aria-label="Side bar"></aside>
+      <div class="wi-main smain">
+        <div class="wi-tabs" role="tablist" aria-label="Open editors"></div>
+        <div class="dash-body" id="dash-body"></div>
+        <!-- an opened draft or question: a preview tab -->
+        <div class="sheet-wrap" id="sheet-wrap" hidden></div>
+      </div>
+      <footer class="wi-status" aria-label="Status bar"></footer>
+    </div>
+  </section>
+
+  <!-- ───────────── MOBILE ───────────── -->
+  <section class="screen mobile m3" id="mobile" hidden></section>
+</main>
+
+<div class="narrow">
+  <div class="brand">Techne</div>
+  <p>Techne is a web IDE, so it needs a laptop-sized window. Open this link on a computer, or widen the window.</p>
+</div>
+
+<div class="toast m3-snackbar" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+<script src="shell.js"></script>
+<script src="grad.js"></script>
+<script src="gradpages.js"></script>
+<script src="senior.js"></script>
+<script src="seniorpages.js"></script>
+<script src="mobile.js"></script>
+<script>App.start();</script>
+</body>
+</html>

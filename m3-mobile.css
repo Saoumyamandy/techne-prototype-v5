@@ -1,0 +1,87 @@
+/* ═══════════ Techne v4 · Mobile tab (Material 3) ═══════════
+   An Android-style phone frame. Inside it: M3 top app bars, lists, an extended FAB, a bottom sheet and a snackbar,
+   built from the M3 specs where Material Web has no component. Colours come only from tokens.css. */
+
+.screen.mobile.m3 { overflow: auto; background: var(--md-sys-color-surface-container-low); --mp-frame: var(--md-sys-color-inverse-surface); }
+:root[data-theme="dark"] .screen.mobile.m3 { --mp-frame: var(--md-sys-color-surface-container-highest); }
+.mob { min-height: 100%; display: flex; align-items: center; justify-content: center; gap: 72px; padding: 40px 24px; }
+
+/* left: what this flow is, and the four flows */
+.mob-info { width: 360px; display: flex; flex-direction: column; gap: 12px; }
+.mob-who { color: var(--md-sys-color-primary); }
+.mob-flows { margin-top: 12px; padding: 0; border-radius: var(--m3-shape-l); background: var(--md-sys-color-surface); --md-list-container-color: var(--md-sys-color-surface); --md-list-item-leading-space: 16px; }
+.mob-flows md-list-item { border-radius: var(--m3-shape-l); }
+.mob-flows md-list-item.on { --md-list-item-list-item-container-color: var(--md-sys-color-secondary-container); background: var(--md-sys-color-secondary-container); --md-list-item-label-text-color: var(--md-sys-color-on-secondary-container); --md-list-item-leading-icon-color: var(--md-sys-color-on-secondary-container); }
+
+/* the phone */
+.phone { flex: none; width: 380px; height: 800px; padding: 10px; border-radius: 48px; background: var(--mp-frame); box-shadow: var(--m3-elev-3); }
+.phone-screen { position: relative; height: 100%; display: flex; flex-direction: column; overflow: hidden; border-radius: 38px; background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); }
+.mp-status { position: relative; flex: none; display: flex; align-items: center; justify-content: space-between; height: 40px; padding: 0 24px; --md-icon-size: 16px; }
+.mp-cam { position: absolute; left: 50%; top: 12px; width: 16px; height: 16px; margin-left: -8px; border-radius: 50%; background: var(--mp-frame); }
+.mp-icons { display: flex; align-items: center; gap: 4px; }
+.mp-gesture { position: absolute; left: 50%; bottom: 8px; width: 108px; height: 4px; margin-left: -54px; border-radius: 2px; background: var(--md-sys-color-on-surface); opacity: .4; z-index: 6; }
+
+.mp-app { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.mp-scroll { flex: 1; min-height: 0; overflow: auto; padding-bottom: 24px; }
+.mp-pad { display: flex; flex-direction: column; gap: 12px; padding: 8px 16px 32px; }
+.mp-pad > * { flex-shrink: 0; }
+.mp-pad > .m3-tag { align-self: flex-start; }
+.mp-center { align-items: center; justify-content: center; gap: 12px; padding: 24px 32px 64px; text-align: center; }
+.mp-okic { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--md-custom-color-success-container); color: var(--md-custom-color-on-success-container); --md-icon-size: 32px; }
+
+/* top app bars */
+.mp-bar { flex: none; display: flex; align-items: center; gap: 4px; }
+.mp-bar.small { height: 64px; padding: 0 16px 0 4px; }
+.mp-bar.small > .mp-title { flex: 1; }
+.mp-bar.small > md-icon { margin: 0 8px 0 12px; color: var(--md-sys-color-on-surface-variant); }
+.mp-bar.small > .m3-status { margin-left: auto; }
+.mp-bar.medium { flex-direction: column; align-items: stretch; gap: 4px; padding: 16px 16px 12px; }
+.mp-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.mp-count { display: inline-grid; place-items: center; height: 24px; padding: 0 10px; border-radius: 12px; background: var(--md-sys-color-error); color: var(--md-sys-color-on-error); white-space: nowrap; }
+
+.mp-list { padding: 0; --md-list-item-leading-space: 16px; --md-list-item-trailing-space: 16px; --md-list-item-top-space: 12px; --md-list-item-bottom-space: 12px; }
+.mp-list md-list-item { align-items: center; }
+.mp-review { color: var(--md-sys-color-primary); }
+.mp-done { opacity: .7; }
+
+/* draft detail: actions pinned above the gesture bar */
+.mp-actions { flex: none; display: flex; justify-content: flex-end; gap: 8px; padding: 12px 16px 28px; border-top: 1px solid var(--md-sys-color-outline-variant); background: var(--md-sys-color-surface-container); }
+.mp-scrim { position: absolute; inset: 0; z-index: 4; background: color-mix(in srgb, var(--md-sys-color-scrim) 32%, transparent); animation: m3-fade .2s; }
+.mp-sheet { position: absolute; left: 0; right: 0; bottom: 0; z-index: 5; display: flex; flex-direction: column; gap: 12px; padding: 8px 24px 32px; border-radius: 28px 28px 0 0; background: var(--md-sys-color-surface-container-low); box-shadow: var(--m3-elev-1); animation: mp-up .3s cubic-bezier(.2, 0, 0, 1); }
+.mp-sheet ul { display: flex; flex-direction: column; gap: 4px; padding-left: 20px; color: var(--md-sys-color-on-surface-variant); }
+.mp-sheet md-outlined-text-field { width: 100%; }
+.mp-handle { align-self: center; width: 32px; height: 4px; margin: 8px 0; border-radius: 2px; background: var(--md-sys-color-on-surface-variant); opacity: .4; }
+@keyframes mp-up { from { transform: translateY(100%); } }
+
+/* Techne asks */
+.mp-q { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; padding: 16px; }
+.mp-replies { display: flex; flex-direction: column; gap: 8px; }
+.mp-replies button { position: relative; padding: 12px 16px; text-align: left; background: var(--md-sys-color-surface); outline: none; --md-focus-ring-shape: 12px; }
+.mp-fab { position: absolute; right: 16px; bottom: 32px; z-index: 3; }
+.mp-fab.rec { animation: m3-pulse 1.6s ease-in-out infinite; }
+
+/* Slack with Senior Techne */
+.mp-av { flex: none; display: grid; place-items: center; width: 36px; height: 36px; border-radius: var(--m3-shape-s); background: var(--md-sys-color-primary-container); color: var(--md-sys-color-on-primary-container); font: 500 14px/1 var(--md-ref-typeface-plain); --md-icon-size: 20px; }
+.mp-av.bot { background: var(--md-sys-color-tertiary-container); color: var(--md-sys-color-on-tertiary-container); }
+.mp-bar .mp-av { width: 28px; height: 28px; margin-right: 8px; --md-icon-size: 18px; }
+.mp-thread { display: flex; flex-direction: column; gap: 16px; padding: 8px 16px 16px; border-top: 1px solid var(--md-sys-color-outline-variant); }
+.mp-msg { display: flex; gap: 12px; }
+.mp-msg > div { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.mp-msg-h { display: flex; align-items: center; gap: 8px; }
+.mp-steps { display: flex; flex-direction: column; gap: 8px; margin: 4px 0; padding-left: 20px; }
+.mp-open { margin-left: -12px; }
+.mp-steps li { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.mp-typing { display: inline-flex; gap: 4px; padding: 8px 0; }
+.mp-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--md-sys-color-on-surface-variant); animation: mp-dot 1s infinite; }
+.mp-typing i:nth-child(2) { animation-delay: .15s; }
+.mp-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes mp-dot { 0%, 60%, 100% { opacity: .3; } 30% { opacity: 1; } }
+.mp-input { flex: none; display: flex; align-items: center; gap: 8px; padding: 8px 12px 28px; border-top: 1px solid var(--md-sys-color-outline-variant); }
+.mp-input md-outlined-text-field { flex: 1; --md-outlined-text-field-container-shape: 28px; --md-outlined-text-field-top-space: 10px; --md-outlined-text-field-bottom-space: 10px; }
+
+/* snackbar inside the phone */
+.mp-snack { position: absolute; left: 12px; right: 12px; bottom: 28px; z-index: 7; display: flex; align-items: center; gap: 8px; min-height: 48px; padding: 4px 8px 4px 16px; border-radius: var(--m3-shape-xs); background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface); box-shadow: var(--m3-elev-3); opacity: 0; transform: translateY(12px); transition: opacity .2s, transform .3s cubic-bezier(.2, 0, 0, 1); pointer-events: none; --md-text-button-label-text-color: var(--md-sys-color-inverse-primary); }
+.mp-snack span { flex: 1; padding: 10px 0; }
+.mp-snack.in { opacity: 1; transform: none; pointer-events: auto; }
+
+@media (max-width: 1100px) { .mob { gap: 32px; } .mob-info { width: 300px; } }
