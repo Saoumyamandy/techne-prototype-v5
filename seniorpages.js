@@ -423,7 +423,9 @@ const SeniorPages = (() => {
   }
 
   // Answer fields type out the scripted answer, whatever keys are pressed, so a live walkthrough never stalls on typing
-  const scriptFor = el => el.dataset.script === 'probe' ? DATA.seniorIde.probe.answer : DATA.interview[qIndex]?.answer || '';
+  const scriptFor = el => el.dataset.script === 'probe' ? DATA.seniorIde.probe.answer
+    : el.dataset.script === 'past' ? DATA.pastWork.items.find(x => x.id === el.dataset.item)?.answer || ''
+    : DATA.interview[qIndex]?.answer || '';
   let typing = null;
   function startTyping(el) {
     if (el.dataset.typed || typing) return;
@@ -446,7 +448,7 @@ const SeniorPages = (() => {
     const el = e.target.closest?.('[data-script]');
     if (!el || e.metaKey || e.ctrlKey || ['Tab', 'Shift', 'Alt', 'Meta', 'Control', 'CapsLock', 'Escape'].includes(e.key)) return;
     e.preventDefault();
-    if (e.key === 'Enter' && el.dataset.typed) { host.querySelector(el.dataset.script === 'probe' ? '[data-sact="probe-answer"]' : '[data-sact="iv-send"]')?.click(); return; }
+    if (e.key === 'Enter' && el.dataset.typed) { document.querySelector(el.dataset.script === 'probe' ? '[data-sact="probe-answer"]' : el.dataset.script === 'past' ? '[data-act="past-save"]' : '[data-sact="iv-send"]')?.click(); return; }
     startTyping(el);
   }, true);
   // paste, dictation and IME also produce the scripted answer
@@ -464,5 +466,5 @@ const SeniorPages = (() => {
 
   function stop() { timers.forEach(clearTimeout); timers = []; host?.querySelector('md-dialog.iv-wrap')?.remove(); }
   function reset() { focusCluster = null; twinTopic = null; twinOpen = 't1'; twinTest = false; for (const k in docState) delete docState[k]; for (const k in confirmed) delete confirmed[k]; stop(); clearTimeout(typing); typing = null; recording = true; probeState = 'hidden'; qIndex = 0; momentsOpen = false; DATA.interview.forEach(q => delete q.given); }
-  return { render, stop, reset, todayHTML, openMoment, toggleMoments: () => { momentsOpen = !momentsOpen; }, recording: () => recording };
+  return { render, stop, reset, finishTyping, todayHTML, openMoment, toggleMoments: () => { momentsOpen = !momentsOpen; }, recording: () => recording };
 })();

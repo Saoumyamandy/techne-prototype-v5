@@ -18,6 +18,7 @@ const Senior = (() => {
     sent: ['send', d => `Sent to you · ${d.askedBy} asked`],
     sessans: ['videocam', () => 'From your session + your answer'],
     interview: ['diversity_3', () => 'From your interview with Techne'],
+    past: ['history', d => `From your past work · ${d.when}`],
   };
   const sym = App.sym, status = App.status;
   const synthChip = () => `<md-assist-chip class="m3-synth" label="Synthetic" title="Asks as a synthetic new grad. Click to see how it’s built."><md-icon slot="icon">auto_awesome</md-icon></md-assist-chip>`;
@@ -282,8 +283,8 @@ const Senior = (() => {
     sheetWrap.dataset.type = type;
     sheetWrap.innerHTML = `<div class="m3-sheet" role="region" aria-label="Review">${html}</div>`;
     sheetWrap.scrollTop = 0;
-    const it = type === 'draft' ? drafts.find(x => x.id === id) : queue.find(x => x.id === id);
-    Shell.setPreview('senior', { label: it?.title || 'Review', icon: type === 'draft' ? 'rate_review' : 'help' });
+    const it = type === 'draft' ? drafts.find(x => x.id === id) : type === 'past' ? pastItem(id) : queue.find(x => x.id === id);
+    Shell.setPreview('senior', { label: it?.title || it?.system || 'Review', icon: type === 'draft' ? 'rate_review' : type === 'past' ? 'history' : 'help' });
     updateCounts();
   }
   function hideSheet() { if (sheetWrap.hidden) return; sheetWrap.hidden = true; body.hidden = false; Shell.previewActive('senior', false); updateCounts(); }
@@ -316,6 +317,12 @@ const Senior = (() => {
         ${label('Your answer to Techne', synthChip())}
         <blockquote class="m3-quote md-typescale-body-large">“${ans}”</blockquote>
         <p class="m3-cap md-typescale-body-small">${sym('info')}Techne asked as a new grad, because 9 new grads asked about rerunning a failed job this month.</p>`;
+    } else if (d.kind === 'past') {
+      const i = pastItem(d.pastId);
+      left = `${label('What Techne found')}${pastArtifact(i)}
+        ${label('Your answer to Techne', synthChip())}
+        <blockquote class="m3-quote md-typescale-body-large">“${i.given || i.guess}”</blockquote>
+        <p class="m3-cap md-typescale-body-small">${sym('history')}${i.given ? 'You added this' : 'You confirmed Techne’s guess'}. Techne asked as a new grad.</p>`;
     } else if (d.kind === 'sent') {
       left = `${label(`What ${d.askedBy.split(' ')[0]} was doing`)}${shot(d.shot)}
         ${d.inferred ? `<div class="m3-card m3-warnbox">${sym('warning')}<div><div class="md-typescale-title-small">Your twin inferred this</div><div class="md-typescale-body-medium">${d.inferred}</div></div></div>` : `<p class="m3-cap md-typescale-body-small">${sym('send')}Senior Techne sent this to you because your twin drafted the answer.</p>`}`;
@@ -462,6 +469,20 @@ const Senior = (() => {
       case 'voice': App.toast(`Voice answers work on mobile. Try the Mobile tab.`); break;
       case 'to-drafts': draftTab = 'todo'; Shell.setView('senior', 'drafts', true); break;
       case 'past-tab': pastTab = el.dataset.val; rerenderHot(); break;
+      case 'open-past': openPast(el.dataset.id); break;
+      case 'past-add': openPast(id, 'add'); break;
+      case 'past-who': openPast(id, 'who'); break;
+      case 'past-cancel': openPast(id); break;
+      case 'past-confirm': pastDone(id, 'confirmed'); break;
+      case 'past-obsolete': pastDone(id, 'obsolete'); break;
+      case 'past-hand': pastDone(id, 'handed', undefined, el.dataset.to); break;
+      case 'past-save': {
+        const f = $('#past-a');
+        SeniorPages.finishTyping(f);
+        if (!f?.value.trim()) { f?.focus(); App.toast('Add a sentence first, or press Cancel.'); return; }
+        pastDone(id, 'confirmed', f.value.trim());
+        break;
+      }
       case 'top-search': shellAct('search'); break;
       case 'top-notes': App.toast(`${todoDrafts().length} drafts and ${openQs().length} open questions need you.`); break;
       case 'to-queue': App.set({ screen: 'queue' }); break;
@@ -534,6 +555,70 @@ const Senior = (() => {
       <p class="m3-cap m3-past-foot md-typescale-body-small">${sym('lock')}Skip anything. Nothing here is shared until you approve it, and it’s never shown to your manager.</p>
     </section>`;
   }
+  // ── the past-work card: opens as a preview tab, like a draft ──
+  let pastMode = null;
+  function pastArtifact(i) {
+    const A = i.artifact;
+    if (A.kind === 'diff') return `<div class="m3-diff"><div class="m3-diff-file md-typescale-label-large">${sym('commit')}${A.commit} · ${A.message}</div>${A.removed.map(l => `<div class="rm"><span>−</span>${l}</div>`).join('')}${A.added.map(l => `<div class="add"><span>+</span>${l}</div>`).join('')}<div class="m3-diff-res md-typescale-body-small">${sym('description')}${A.file} · ${i.lastChanged}</div></div>
+      ${A.incident ? `<blockquote class="m3-quote m3-art"><div class="md-typescale-title-small">${sym('report')}${A.incident.id} · ${A.incident.title}</div>${A.incident.lines.map(l => `<div class="md-typescale-body-medium">${l}</div>`).join('')}</blockquote>` : ''}`;
+    if (A.kind === 'shot') return `${shot(A.shot)}<p class="m3-cap md-typescale-body-small">${sym('commit')}Commit ${A.commit} · ${A.message}</p>`;
+    return `<blockquote class="m3-quote m3-art"><div class="md-typescale-title-small">${sym('description')}${A.file}</div>${A.lines.map(l => `<div class="md-typescale-body-medium">${l}</div>`).join('')}</blockquote>`;
+  }
+  function pastCard(i) {
+    const left = `${label('What Techne found')}${pastArtifact(i)}
+      ${label('Why Techne is asking')}
+      <div class="m3-why-past">
+        <div class="m3-meta-i md-typescale-body-medium">${sym(SIGNAL[i.signal][0])}${i.signalText}</div>
+        ${i.lineage ? `<div class="md-typescale-label-medium m3-muted">Real new grad questions, anonymised · ${i.lineage.count}</div><ul class="m3-why-q md-typescale-body-medium">${i.lineage.questions.map(q => `<li>“${q}”</li>`).join('')}</ul>` : ''}
+        ${i.onlyYou ? `<div class="m3-meta-i md-typescale-body-medium">${sym('person')}Only you have changed this since ${i.year}.</div>` : ''}
+      </div>`;
+    const right = `${label('Techne · asking as a new grad', synthChip())}
+      <p class="m3-pq md-typescale-title-large">${i.question}</p>
+      ${label('Techne’s guess')}
+      <div class="m3-card filled m3-guess">${status('warn', 'Inferred', 'warning')}<p class="md-typescale-body-large">${i.guess}</p></div>
+      ${pastMode === 'add' ? `${label(i.runbook ? 'What changed' : 'Add context')}<md-outlined-text-field id="past-a" type="textarea" rows="3" data-script="past" data-item="${i.id}" placeholder="One sentence is enough" aria-label="${i.runbook ? 'What changed' : 'Add context'}"></md-outlined-text-field>` : ''}
+      ${pastMode === 'who' ? `${label('Who knows it?')}<div class="m3-who-pick">${['Dev K.', 'Lena M.'].map(n => `<md-outlined-button data-act="past-hand" data-to="${n}">${sym('person', 'icon')}${n}</md-outlined-button>`).join('')}</div>` : ''}`;
+    const foot = pastMode === 'add'
+      ? `<span class="md-typescale-body-medium m3-muted">It becomes a draft only you can approve.</span><md-text-button data-act="past-cancel">Cancel</md-text-button><md-filled-button data-act="past-save">${sym('check', 'icon')}Save</md-filled-button>`
+      : pastMode === 'who'
+        ? `<span class="md-typescale-body-medium m3-muted">Techne will ask them instead. Nothing of yours is shared.</span><md-text-button data-act="past-cancel">Cancel</md-text-button>`
+        : `<span class="md-typescale-body-medium m3-muted">Skip anything. Nothing is shared until you approve it.</span>
+          ${i.runbook ? '' : '<md-text-button data-act="past-who">Someone else knows</md-text-button>'}
+          <md-text-button data-act="past-obsolete">Obsolete</md-text-button>
+          <md-outlined-button data-act="past-add">${i.runbook ? 'Update' : 'Add context'}</md-outlined-button>
+          <md-filled-button data-act="past-confirm">${sym('check', 'icon')}${i.runbook ? 'Still true' : 'That’s right'}</md-filled-button>`;
+    return `${sheetTop('Your past work', i.system, `${i.file} · last changed ${i.lastChanged}`, status('info', 'Only you see this', 'lock'))}
+      <div class="m3-sheet-grid"><div class="m3-sheet-col">${left}</div><div class="m3-sheet-col">${right}</div></div>
+      <footer class="m3-sheet-foot" id="sheet-foot">${foot}</footer>`;
+  }
+  function openPast(id, mode = null) {
+    const i = pastItem(id);
+    if (!i || i.status !== 'todo') return;
+    pastMode = mode;
+    openSheet(pastCard(i), id, 'past');
+    if (mode === 'add') later(() => $('#past-a')?.focus(), 150);
+  }
+  // That's right or Save: a draft lands first in Your twin's drafts, the item moves to Done, coverage fills in by one
+  function pastDone(id, result, answer, to) {
+    const i = pastItem(id);
+    closeSheet();
+    Object.assign(i, { status: 'done', result, to, given: answer });
+    let d = null;
+    if (result === 'confirmed') {
+      d = { id: `d-${id}`, pastId: id, kind: 'past', title: i.draftTitle, ago: 'just now', topic: i.topic, when: i.lastChanged, fresh: true, status: 'todo', steps: i.draftSteps,
+        from: [`Your ${i.runbook ? 'runbook' : 'change'} · ${i.lastChanged}`, answer ? 'Your answer to Techne · today' : 'Techne’s guess, confirmed by you · today'] };
+      drafts = drafts.filter(x => x.pastId !== id);
+      drafts.unshift(d);
+    }
+    rerender();
+    App.undoToast(result === 'confirmed' ? 'Added to your twin. The draft is first in Your twin’s drafts.'
+      : result === 'obsolete' ? 'Marked obsolete. Techne won’t ask about it again.' : `Sent to ${to}’s list. Techne will ask them instead.`, () => {
+      Object.assign(i, { status: 'todo', result: undefined, to: undefined, given: undefined });
+      if (d) drafts = drafts.filter(x => x !== d);
+      rerender();
+    });
+  }
+
   // the same list in the Hot spots side bar
   function pastSide() {
     const todo = past.filter(i => i.status === 'todo');
@@ -664,6 +749,7 @@ const Senior = (() => {
       case 'moments-list': SeniorPages.toggleMoments(); Shell.refresh('senior', ['files']); break;
       case 'moment': SeniorPages.openMoment(+el.dataset.i); break;
       case 'teach': body.querySelector('[data-sact="interview"]')?.click(); break;
+      case 'past': openPast(el.dataset.id); break;
     }
   }
 
@@ -738,5 +824,5 @@ const Senior = (() => {
   }
 
   function hardReset() { interviewDone = false; restartFresh = false; flagged = null; }
-  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem, pastSectionHTML };
+  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem, pastSectionHTML, openPast };
 })();

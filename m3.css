@@ -440,6 +440,12 @@ md-dialog.m3-iv { width: 640px; max-width: calc(100% - 48px); max-height: min(76
 .m3-pfile { margin-left: 8px; color: var(--md-sys-color-on-surface-variant); font: 400 13px/20px var(--m3-mono); }
 .m3-lead.k-past { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .m3-past-foot { padding: 12px 24px 20px; }
+.m3-why-past { display: flex; flex-direction: column; gap: 8px; }
+.m3-quote.m3-art { display: flex; flex-direction: column; gap: 4px; }
+.m3-quote.m3-art .md-typescale-title-small { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; --md-icon-size: 18px; }
+.m3-pq { margin: 4px 0 8px; }
+.m3-card.m3-guess { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px; }
+.m3-who-pick { display: flex; gap: 8px; }
 .m3-hot-grid md-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .m3-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; }
 .m3-table th { padding: 12px 16px; text-align: left; font-weight: 500; color: var(--md-sys-color-on-surface-variant); border-bottom: 1px solid var(--md-sys-color-outline-variant); white-space: nowrap; }
