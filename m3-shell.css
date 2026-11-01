@@ -32,6 +32,7 @@
 .wi-me-wrap { position: relative; }
 .wi-me { position: relative; display: grid; place-items: center; width: 48px; height: 48px; border: 0; border-radius: 50%; background: none; cursor: pointer; outline: none; --md-focus-ring-shape: 24px; }
 .wi-me .m3-avatar.sm { margin: 0; }
+.wi-me.on .m3-avatar.sm { outline: 2px solid var(--md-sys-color-primary); outline-offset: 2px; }
 .wi-menu { --md-menu-container-color: var(--md-sys-color-surface-container); min-width: 240px; }
 .wi-menu-who { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-bottom: 1px solid var(--md-sys-color-outline-variant); }
 .wi-menu-who .m3-avatar.sm { margin: 0; }
@@ -161,3 +162,8 @@ span.wi-si { cursor: default; }
 /* a review open as a tab: the tab itself closes it, so the sheet's own back and close buttons go */
 .sheet-wrap .m3-sheet-top { padding: 16px 24px; }
 .sheet-wrap .m3-sheet-top > md-icon-button[data-act="close"] { display: none; }
+
+/* Your twin's tabs (what it knows, your year, how Techne works for you) */
+.wi-subtabs { position: sticky; top: 0; z-index: 2; background: var(--md-sys-color-surface); }
+.wi-empty-note { display: flex; gap: 8px; margin: 16px 4px 0; padding: 12px; border: 1px dashed var(--md-sys-color-outline-variant); border-radius: var(--m3-shape-m); color: var(--md-sys-color-on-surface-variant); --md-icon-size: 18px; }
+.wi-empty-note md-icon { flex: none; color: var(--md-custom-color-success); }

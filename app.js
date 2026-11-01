@@ -22,8 +22,8 @@ const App = (() => {
 
   // ── state, kept in the hash so a reload or shared link lands on the same view ──
   const SCREENS = {
-    grad: [['home', 'Home'], ['ide', 'IDE'], ['save', 'Describe-task save'], ['archive', 'Your twin (archive)'], ['learn', 'Learning path'], ['onboard', 'Onboarding + permissions'], ['report', 'Year-end report']],
-    senior: [['home', 'Home'], ['twin', 'Your twin'], ['queue', 'Question Queue'], ['repo', 'Company repository'], ['ide', 'Your IDE'], ['hot', 'Hot spots'], ['persona', 'How Techne’s questions are built'], ['report', 'Year-end report']],
+    grad: [['home', 'Home'], ['ide', 'IDE'], ['save', 'Describe-task save'], ['archive', 'Your twin (archive)'], ['learn', 'Learning path'], ['onboard', 'What Techne records'], ['report', 'Your year'], ['repo', 'Company repository'], ['hot', 'Hot spots']],
+    senior: [['home', 'Home'], ['twin', 'Your twin'], ['queue', 'Question Queue'], ['repo', 'Company repository'], ['ide', 'Your IDE'], ['hot', 'Hot spots'], ['persona', 'How Techne asks'], ['report', 'Your year']],
     mobile: [['approvals', 'Senior · your twin’s drafts'], ['probes', 'Senior · Techne’s questions'], ['slack', 'New grad · Slack'], ['archive', 'New grad · your twin']],
   };
   const state = { role: 'grad', screen: 'home', wt: 'inline', help: 'terminal', sc: 'checked', seen: '0', theme: 'light' };

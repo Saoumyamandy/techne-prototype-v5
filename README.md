@@ -34,7 +34,9 @@ Use the Controls bar at the top to switch between **New grad**, **Senior** and *
 - **Home:** Continue the ticket, Ask Senior Techne, recent files, and this week's learning path with progress.
 - **Ask Senior Techne** (the star on the rail): a chat beside the code. Ask anything; answers name the twin they came from, or say no twin covers it and send it to the Question Queue.
 - **Need help:** the inline walkthrough appears against the problem. Pin it to move it into the right panel, and type a follow-up on the card to continue there.
-- **Your twin and Learning follow your code:** with a file open, Your twin shows what you've saved about it, who knows it, and *Document this solution*; Learning shows the path for the issue you're on. Each has a button to open the full page. The avatar menu holds Your year and What Techne records.
+- **Your avatar opens Your twin**, a page with three tabs: *What it knows* (a young twin, two weeks old), *Your year*, and *What Techne records*.
+- **Drafts, Repository and Hot spots follow your code too**, and stay sparse because Maya is two weeks in: what your twin drafted from this work, team docs about it (read-only, with what you've published), and where new grads get stuck on it and where you did.
+- **Your twin and Learning follow your code:** with a file open, Your twin shows what you've saved about it, who knows it, and *Document this solution*; Learning shows the path for the issue you're on. Each has a button to open the full page.
 - **IDE**, with four scenarios. The scenario starts the first time its code is on screen:
   - *Covered*: Priya's twin has a verified answer.
   - *Not covered*: no twin covers it. Your workaround goes to the Question Queue.
@@ -47,7 +49,8 @@ Use the Controls bar at the top to switch between **New grad**, **Senior** and *
 
 **Senior**
 - **Home:** *Needs you* mixes your twin's drafts and open questions, each tagged, newest first. Drafts are only yours and never locked. Every item opens for review as a preview tab, and approving can be undone.
-- **Rail:** Explorer (files, plus *Your twin today*: sessions, key moments and Techne's questions), Drafts and Queue (lists with To do and Done, badges for what's open), Repository (search and open docs), Hot spots. The avatar menu holds Your twin, Your year and How Techne asks.
+- **Your avatar opens Your twin**, with tabs for *What it knows*, *Your year* (with Your impact) and *How Techne asks*.
+- **Rail:** Explorer (files, plus *Your twin today*: sessions, key moments and Techne's questions), Drafts and Queue (lists with To do and Done, badges for what's open), Repository (search and open docs), Hot spots.
 - **Side bar follows your code:** with VENDSYNC.jcl open, Drafts, Queue, Repository and Hot spots show what's about this job first, then everything else. Drafts has *Teach your twin*, which opens the end-of-day interview.
 - **Your twin** (`#senior-twin`): everything Senior Techne answers from Priya's work. It shows the topics it knows (verified or inferred), every doc with its trail back to where it came from and how often it helped, what new grads asked it this week, and its gaps. Priya can pause learning, confirm an inferred doc, keep a doc private or retire it, and test her twin.
 - **Question Queue:** shared by every senior. You claim an item before answering it, and claimed items are locked for everyone else.

@@ -11,7 +11,7 @@ const Shell = (() => {
   const tabOf = (role, scr) => C[role].tabOf?.(scr) || scr;
   const current = role => App.state.role === role ? tabOf(role, App.state.screen) : 'home';
 
-  // cfg: root, view, rail [{id, icon, label, badge?, tone?}], fab?, me, menu [[screen, label, icon]],
+  // cfg: root, view, rail [{id, icon, label, badge?, tone?}], fab?, me {name, sub, screen} (the avatar opens Your twin),
   // tabs {screen: [label | () => label, icon]}, tabOf?, side(view) → {title, acts, body, foot?}, sideAfter?(view, el),
   // status() → html, search {label}, onSearch(), act(name, el), hidePreview(), showPreview(), closePreview()
   function register(role, cfg) {
@@ -39,12 +39,7 @@ const Shell = (() => {
           <span class="wi-lab md-typescale-label-medium">${d.label}</span></button>`;
       }).join('')}</div>
       <span class="wi-grow"></span>
-      <span class="wi-me-wrap"><button class="wi-me" id="${role}-me" data-wi="me" aria-label="${c.me.name}: your account" title="${c.me.name}"><md-ripple></md-ripple><md-focus-ring></md-focus-ring><span class="m3-avatar sm">${c.me.name[0]}</span></button>
-        <md-menu class="wi-menu" anchor="${role}-me" positioning="popover" anchor-corner="end-end" menu-corner="end-start">
-          <div class="wi-menu-who"><span class="m3-avatar sm">${c.me.name[0]}</span><div><div class="md-typescale-title-small">${c.me.name}</div><div class="md-typescale-body-small m3-muted">${c.me.sub}</div></div></div>
-          ${c.menu.map(([s, l, ic]) => `<md-menu-item data-screen="${s}"><md-icon slot="start">${ic}</md-icon><div slot="headline">${l}</div></md-menu-item>`).join('')}
-        </md-menu></span>`;
-    $r(role, '.wi-menu').addEventListener('close-menu', e => { const s = e.detail.initiator?.dataset.screen; if (s) openScreen(role, s); });
+      <button class="wi-me ${!preview[role]?.active && current(role) === tabOf(role, c.me.screen) ? 'on' : ''}" data-wi="me" aria-label="Your twin · ${c.me.name}" title="Your twin"><md-ripple></md-ripple><md-focus-ring></md-focus-ring><span class="m3-avatar sm">${c.me.name[0]}</span></button>`;
   }
 
   // ── side bar: one view at a time ──
@@ -138,11 +133,18 @@ const Shell = (() => {
     else if (d.wiAct) C[role].act(d.wiAct, el);
     else switch (d.wi) {
       case 'home': openScreen(role, 'home'); break;
-      case 'me': { const m = $r(role, '.wi-menu'); m.open = !m.open; break; }
+      case 'me': openScreen(role, C[role].me.screen); break;
       case 'search': C[role].onSearch(); break;
       case 'preview': C[role].showPreview(); break;
       case 'close-preview': C[role].closePreview(); break;
     }
+  }
+
+  // Your twin is one page with tabs: what it knows, your year, and how Techne works for you
+  function subTabs(el, items, cur) {
+    el.innerHTML = `<md-tabs class="wi-subtabs" aria-label="Your twin" active-tab-index="${Math.max(0, items.findIndex(([s]) => s === cur))}">${items.map(([, l, ic]) => `<md-primary-tab><md-icon slot="icon">${ic}</md-icon>${l}</md-primary-tab>`).join('')}</md-tabs><div class="wi-twin-body"></div>`;
+    el.querySelector('md-tabs').addEventListener('change', e => { const s = items[e.target.activeTabIndex]?.[0]; if (s && s !== App.state.screen) App.set({ screen: s }); });
+    return el.querySelector('.wi-twin-body');
   }
 
   // ── Home: the VS Code welcome page, with Start and Recent on the left ──
@@ -176,5 +178,5 @@ const Shell = (() => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k' && C[App.state.role]) { e.preventDefault(); C[App.state.role].onSearch(); }
   });
 
-  return { register, sync, setView, setPreview, previewActive, refresh, renderStatus: role => C[role] && renderStatus(role), view: role => view[role], welcome, openScreen };
+  return { register, subTabs, sync, setView, setPreview, previewActive, refresh, renderStatus: role => C[role] && renderStatus(role), view: role => view[role], welcome, openScreen };
 })();

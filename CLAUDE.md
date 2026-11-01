@@ -19,6 +19,8 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 - The senior's views follow the open code too: with VENDSYNC.jcl open, Drafts, Queue, Repository and Hot spots put what's about this job first, in an M3 outlined card ("About the job you have open"), then the rest. Drafts ends with "Teach your twin" (the end-of-day interview).
 - Your past work (senior Hot spots, `#past`): Techne finds old work from three signals (opened today, new grads asked, not checked in years), guesses, and Priya confirms or adds one sentence. Data in `DATA.pastWork`; state, coverage and the card (a preview tab, kind `past`) in `senior.js`. A confirmed item drafts a doc, fills coverage by one, and turns the traced hot spot inferred, then covered once approved.
 - Copy: nothing on screen says demo, prototype or round, and no em dashes.
+- The avatar opens Your twin (no menu), for both roles. Your twin is one page with tabs (`Shell.subTabs`): new grad *What it knows / Your year / What Techne records*; senior *What it knows / Your year / How Techne asks*. `report`, `onboard` and `persona` are tabs of it, so their short links still work.
+- The new grad rail also has Drafts, Repository and Hot spots, contextual like the rest, and deliberately sparse with designed empty states (dashed, one line, one action): Maya's twin is two weeks old.
 - These context cards are M3 outlined cards (white, thin outline, blue only on headings and icons). The user found a blue-filled card too loud.
 - Colour: Google blue (#0B57D0) on white. No purple.
 

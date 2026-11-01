@@ -860,11 +860,13 @@ const Grad = (() => {
         { id: 'files', icon: 'folder_copy', label: 'Explorer' },
         { id: 'twin', icon: 'diversity_3', label: 'Your twin', badge: () => GradPages.total(), badgeId: 'arch-count', tone: 'count' },
         { id: 'path', icon: 'route', label: 'Learning' },
+        { id: 'drafts', icon: 'rate_review', label: 'Drafts' },
+        { id: 'repo', icon: 'library_books', label: 'Repository' },
+        { id: 'hot', icon: 'local_fire_department', label: 'Hot spots' },
       ],
-      me: { name: 'Maya Chen', sub: 'New grad · Procurement' },
-      menu: [['report', 'Your year', 'insights'], ['onboard', 'What Techne records', 'shield_person']],
-      tabs: { home: ['Home', 'home'], ide: [() => S?.file || 'Code', 'description'], archive: ['Your twin', 'diversity_3'], learn: ['Learning path', 'route'], report: ['Your year', 'insights'], onboard: ['What Techne records', 'shield_person'] },
-      tabOf: scr => scr === 'save' ? 'ide' : scr,
+      me: { name: 'Maya Chen', sub: 'New grad · Procurement', screen: 'archive' },
+      tabs: { home: ['Home', 'home'], ide: [() => S?.file || 'Code', 'description'], archive: ['Your twin', 'diversity_3'], learn: ['Learning path', 'route'], repo: ['Company repository', 'library_books'], hot: ['Hot spots', 'local_fire_department'] },
+      tabOf: scr => scr === 'save' ? 'ide' : ['report', 'onboard'].includes(scr) ? 'archive' : scr,
       side: v => v === 'files' ? filesSide() : GradPages.side(v),
       sideAfter: v => { if (v === 'files' && S) renderTree(); },
       status: statusHTML,
@@ -917,8 +919,9 @@ const Grad = (() => {
   }
   const file = () => S?.file;
   const issue = () => S?.key;
+  const sent = () => sentToPriya;
   const inCode = () => screen === 'ide' || screen === 'save';
   const where = () => ({ error: !!S?.error, at: S?.error ? `${S.file}:${S.errLine}` : S?.file });
   const task = () => S?.key === 'filecopy' ? 'PROC-512' : S?.file;
-  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task, issue, inCode, where };
+  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task, issue, inCode, where, sent };
 })();

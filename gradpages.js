@@ -174,13 +174,13 @@ const GradPages = (() => {
   // ── side bar views: Your twin and Learning path follow the code you have open ──
   // what each scenario is about, so the views can show what's relevant to it
   const ISSUE = {
-    checked: { what: 'Copybook not found: VENDREC', because: 'Because your build failed', topics: ['Copybooks'], twin: 'priya', knows: 'Local COBOL builds · 24 docs, verified',
+    checked: { docs: /copybook|compile/i, hot: 'Copybooks and COBCPY', what: 'Copybook not found: VENDREC', because: 'Because your build failed', topics: ['Copybooks'], twin: 'priya', knows: 'Local COBOL builds · 24 docs, verified',
       skill: ['COBOL builds and listings', 62, 95], steps: [['Fix a copybook error with Priya’s twin', 'now', 'Fixes the error you have now · 4 min walkthrough'], ['Set COBCPY once for every repo', 'next', 'Stops this error coming back'], ['Read a compile listing', 'next', 'Find the line the compiler flagged']] },
-    unchecked: { what: 'Invalid numeric data in PO-AMT', because: 'Because your test run failed', topics: ['Test data'], twin: null, knows: 'Nobody’s twin covers this yet. Your workaround goes to the Question Queue.',
+    unchecked: { docs: /S0C7|numeric/i, hot: 'Blank or bad numeric data (S0C7)', what: 'Invalid numeric data in PO-AMT', because: 'Because your test run failed', topics: ['Test data'], twin: null, knows: 'Nobody’s twin covers this yet. Your workaround goes to the Question Queue.',
       skill: ['Procurement domain', 35, 96], steps: [['Read the PO record layout in the copybook', 'next', 'Shows what PO-AMT expects'], ['Run the PO batch in test', 'next', 'Reproduce the bad data safely'], ['Ask Dev K.’s twin about test data', 'later', 'Where the test files come from']] },
-    filecopy: { what: 'PROC-512 · PDF invoices in the nightly copy', because: 'Because you’re on PROC-512', topics: ['Vendor files', 'PDF invoices'], twin: 'priya', knows: 'Nightly vendor file copy · 11 docs, 1 inferred',
+    filecopy: { docs: /vendor file copy|vendor sync/i, hot: 'PDF invoices in the file copy', what: 'PROC-512 · PDF invoices in the nightly copy', because: 'Because you’re on PROC-512', topics: ['Vendor files', 'PDF invoices'], twin: 'priya', knows: 'Nightly vendor file copy · 11 docs, 1 inferred',
       skill: ['Vendor files and the nightly copy', 40, 92], steps: [['PROC-512: PDF invoices in the file copy', 'now', 'The ticket you’re on · Senior Techne can walk you through it'], ['Run the PO batch in test', 'next', 'Check the 2 AM batch still sees every file'], ['VSAM vs the nightly export', 'later', 'Where the copied files end up']] },
-    restart: { what: 'VENDSYNC failed at step 3 (SQLCODE -911)', because: 'Because VENDSYNC failed', topics: ['JCL', 'Vendor sync'], twin: 'priya', knows: 'Vendor sync and restarts · 18 docs, verified',
+    restart: { docs: /vendor sync|restart|VENDMAST/i, hot: 'Rerunning PROCINV', what: 'VENDSYNC failed at step 3 (SQLCODE -911)', because: 'Because VENDSYNC failed', topics: ['JCL', 'Vendor sync'], twin: 'priya', knows: 'Vendor sync and restarts · 18 docs, verified',
       skill: ['Batch and JCL restarts', 15, 70], steps: [['Restart VENDSYNC from the failed step', 'now', 'Gets tonight’s run finished · 3 min walkthrough'], ['Shadow Dev K.’s twin on a JCL restart', 'next', 'How restarts work across jobs'], ['Read “Restarting a failed JCL step”', 'next', 'The team doc behind this fix']] },
   };
   const openPage = (scr, label) => `<md-icon-button data-wi-screen="${scr}" aria-label="${label}" title="${label}"><md-icon>open_in_new</md-icon></md-icon-button>`;
@@ -189,8 +189,60 @@ const GradPages = (() => {
   const progress = () => `<div class="wi-sec md-typescale-label-large"><span>Your path</span><span>Week 2 of 6</span></div>
     <md-linear-progress value="0.333" aria-label="Onboarding: week 2 of 6"></md-linear-progress>`;
   const ctxCard = (label, I, file) => `<div class="wi-ctx"><span class="md-typescale-label-medium">${label}</span>${file ? `<span class="wi-ctx-file">${sym('description')}${file}</span>` : ''}<span class="md-typescale-body-small">${I.what}</span></div>`;
+  // the new grad's Drafts, Repository and Hot spots follow the code too, and stay sparse: Maya is two weeks in
+  const codeCard = (I, sec, inner) => `<section class="wi-issue"><div class="wi-issue-h md-typescale-label-large">About the code you have open</div>
+      <div class="wi-issue-what">${sym('description')}<div><div class="wi-ctx-file">${Grad.file()}</div><div class="md-typescale-body-small m3-muted">${I.what}</div></div></div>
+      <div class="wi-issue-sec md-typescale-label-medium">${sec}</div>${inner}</section>`;
+  const note = (ic, t) => `<div class="wi-note md-typescale-body-small">${sym(ic)}<span>${t}</span></div>`;
+  const rowOf = d => `<md-list-item type="button" ${d.attrs || 'data-wi-screen="archive"'} class="${d.on ? 'on' : ''}"><md-icon slot="start">${d.ic}</md-icon><div slot="headline">${d.title}</div><div slot="supporting-text">${d.sub}</div></md-list-item>`;
+  const list = rows => `<md-list>${rows.map(rowOf).join('')}</md-list>`;
+  const STUCK = [['Copybooks and COBCPY', 'Oct 12 · you saved the fix', 'check_circle'], ['Blank or bad numeric data (S0C7)', 'Oct 26 · your question is with a senior', 'hourglass_top']];
+  const COV = { covered: ['ok', 'Covered', 'verified'], partial: ['warn', 'Partly covered', 'warning'], inferred: ['warn', 'Inferred', 'warning'], gap: ['bad', 'No twin yet', 'help'] };
+  function gradDrafts() {
+    const saved = items.some(i => i.id === 'z0'), fc = Grad.issue() === 'filecopy';
+    return {
+      todo: fc && !saved ? [{ title: 'Added PDF invoices to the nightly vendor file copy', sub: 'From your session today · add a line in your words', ic: 'edit_note', attrs: 'data-wi-act="document"' }] : [],
+      waiting: [{ title: 'Invalid numeric data in PO-AMT', sub: 'With a senior · they’ll check your workaround', ic: 'flag' },
+        ...(Grad.sent() ? [{ title: 'Confirm: PDF invoices need their own folder', sub: 'Sent to Priya R. · waiting for her', ic: 'send' }] : [])],
+      done: [...(saved ? [{ title: 'Added PDF invoices to the vendor file copy', sub: 'Saved to your twin · only you', ic: 'lock' }] : []), { title: 'Setting up COBCPY once for every repo', sub: 'Published · +15 credits', ic: 'toll' }],
+    };
+  }
+  const docRow = d => ({ title: d.title, sub: `${d.by === 'Team' ? 'Team' : `${d.by}’s twin`} · used ${d.used}×`, ic: 'description', attrs: `data-gact="gdoc" data-id="${d.id}"`, on: App.state.screen === 'repo' && gdoc === d.id });
   function side(v) {
     const I = Grad.inCode() && ISSUE[Grad.issue()];
+    if (v === 'drafts') {
+      const D = gradDrafts();
+      return {
+        title: 'Your drafts',
+        body: `${I ? codeCard(I, 'Drafted from this work', D.todo.length ? list(D.todo) : note('info', 'Nothing drafted from this work yet.')) : D.todo.length ? `<div class="wi-sec md-typescale-label-large">To do</div>${list(D.todo)}` : ''}
+          <div class="wi-sec md-typescale-label-large">Waiting on a senior</div>${list(D.waiting)}
+          <div class="wi-sec md-typescale-label-large">Done</div>${list(D.done)}
+          <div class="wi-empty-note md-typescale-body-small">${sym('eco')}<span>Your twin drafts from what you do. Finish a task and document it.</span></div>`,
+      };
+    }
+    if (v === 'repo') {
+      const mine = I ? DATA.docs.filter(d => I.docs.test(d.title)) : [];
+      const rest = DATA.docs.filter(d => !mine.includes(d)), pub = items.filter(i => i.vis === 'published');
+      return {
+        title: 'Company repository', acts: openPage('repo', 'Open the repository'),
+        foot: `<md-filled-tonal-button data-wi-screen="repo">${sym('library_books', 'icon')}Open the repository</md-filled-tonal-button>`,
+        body: `${I ? codeCard(I, 'Docs about this', mine.length ? list(mine.map(docRow)) : note('info', 'No team doc covers this yet.')) : ''}
+          <div class="wi-sec md-typescale-label-large">${I ? 'All docs' : 'Docs'}</div>${list(rest.map(docRow))}
+          <div class="wi-sec md-typescale-label-large">What you’ve published · ${pub.length}</div>${list(pub.map(i => ({ title: i.title, sub: i.with, ic: 'toll' })))}
+          <div class="wi-empty-note md-typescale-body-small">${sym('eco')}<span>Share something from Your twin and a senior reviews it.</span></div>`,
+      };
+    }
+    if (v === 'hot') {
+      const here = I && DATA.hotspots.find(h => h.topic === I.hot);
+      const hotRow = h => { const [, l, ic] = COV[h.cover]; return { title: h.topic, sub: `${h.n} new grads asked · ${l}`, ic, attrs: 'data-wi-screen="hot"' }; };
+      return {
+        title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'),
+        foot: `<md-filled-tonal-button data-wi-screen="hot">${sym('local_fire_department', 'icon')}Open Hot spots</md-filled-tonal-button>`,
+        body: `${I ? codeCard(I, 'Where new grads get stuck here', here ? list([hotRow(here)]) : note('info', 'Nobody else has asked about this yet.')) : ''}
+          <div class="wi-sec md-typescale-label-large">Where you got stuck · ${STUCK.length}</div>${list(STUCK.map(([t, sub, ic]) => ({ title: t, sub, ic, attrs: 'data-wi-screen="hot"' })))}
+          <div class="wi-sec md-typescale-label-large">What other new grads ask</div>${list(DATA.hotspots.filter(h => h !== here).map(hotRow))}`,
+      };
+    }
     if (v === 'twin') {
       const openBtn = `<md-outlined-button data-wi-screen="archive">${sym('open_in_new', 'icon')}Open Your twin</md-outlined-button>`;
       if (!I) return {
@@ -238,10 +290,48 @@ const GradPages = (() => {
     };
   }
 
+  let gdoc = null;
+  function repoHTML() {
+    const I = ISSUE[Grad.issue()], docs = DATA.docs;
+    const sel = docs.find(d => d.id === gdoc) || docs.find(d => I?.docs.test(d.title)) || docs[0];
+    gdoc = sel.id;
+    const pub = items.filter(i => i.vis === 'published');
+    return `<div class="m3-page g-repo">
+      ${head('Company repository', 'Every doc here was approved by a senior. You can read all of it.')}
+      <div class="g-repo-grid">
+        <section class="m3-card outlined">${[...new Set(docs.map(d => d.topic))].map(t => `<div class="wi-sec md-typescale-label-large">${t}</div><md-list>${docs.filter(d => d.topic === t).map(d => rowOf(docRow(d))).join('')}</md-list>`).join('')}</section>
+        <section class="m3-card outlined g-doc">
+          <span class="m3-tag">${sel.topic}</span>
+          <h2 class="md-typescale-headline-small">${sel.title}</h2>
+          <p class="md-typescale-body-large">${sel.summary}</p>
+          <div class="m3-meta md-typescale-body-small"><span class="m3-meta-i">${sym('diversity_3')}${sel.by === 'Team' ? 'Team' : `${sel.by}’s twin`} · checked ${sel.checked}</span><span class="m3-meta-i">${sym('visibility')}Used ${sel.used} times</span><span class="m3-meta-i">${sym('layers')}v${sel.versions}</span></div>
+          <div class="g-doc-note">${App.status('info', 'Read only', 'lock')}<span class="md-typescale-body-medium m3-muted">Think something’s wrong? Ask Senior Techne, and a senior checks it.</span><md-text-button data-wi-act="ask">${sym('auto_awesome', 'icon')}Ask Senior Techne</md-text-button></div>
+        </section>
+      </div>
+      <section class="m3-card outlined"><div class="m3-card-head"><h2 class="md-typescale-title-large">What you’ve published · ${pub.length}</h2><p class="md-typescale-body-medium m3-muted">Share something from Your twin. A senior reviews it before it joins team docs.</p></div>
+        <md-list>${pub.map(i => rowOf({ title: i.title, sub: i.with, ic: 'toll' })).join('')}</md-list></section>
+    </div>`;
+  }
+  function hotHTML() {
+    return `<div class="m3-page g-hot">
+      ${head('Hot spots', 'Where new grads get stuck this month, and whether a senior’s twin covers it.')}
+      <section class="m3-card outlined"><div class="m3-card-head"><h2 class="md-typescale-title-large">Where you got stuck</h2><p class="md-typescale-body-medium m3-muted">${STUCK.length} so far. You’re two weeks in.</p></div>
+        <md-list>${STUCK.map(([t, sub, ic]) => rowOf({ title: t, sub, ic })).join('')}</md-list></section>
+      <section class="m3-card outlined"><div class="m3-card-head"><h2 class="md-typescale-title-large">What other new grads ask</h2></div>
+        <table class="m3-table md-typescale-body-medium"><thead class="md-typescale-title-small"><tr><th>Topic</th><th>New grads asked</th><th>Covered by a twin?</th></tr></thead>
+        <tbody>${DATA.hotspots.map(h => { const [kind, l, ic] = COV[h.cover]; return `<tr><td class="md-typescale-title-small">${h.topic}</td><td>${h.n}</td><td>${App.status(kind, `${l}${h.twin ? ` · ${App.twinName(h.twin)}` : ''}`, ic, true)}</td></tr>`; }).join('')}</tbody></table></section>
+    </div>`;
+  }
+  // a young twin says so, with one way to grow it
+  const youngHTML = () => `<div class="g-young">${sym('eco')}<div class="md-typescale-body-large"><b>Your twin is 2 weeks old.</b> It grows as you work. Every task you save teaches it something.</div><md-filled-tonal-button data-wi-act="ask">${sym('auto_awesome', 'icon')}Ask Senior Techne</md-filled-tonal-button></div>`;
+  const TWIN_TABS = [['archive', 'What it knows', 'diversity_3'], ['report', 'Your year', 'insights'], ['onboard', 'What Techne records', 'shield_person']];
+
   let host = null, current = null;
   function render(scr, el) {
+    if (TWIN_TABS.some(([t]) => t === scr) && !el.classList.contains('wi-twin-body')) el = Shell.subTabs(el, TWIN_TABS, scr);
     host = el; current = scr;
-    el.innerHTML = scr === 'home' ? homeHTML() : scr === 'archive' ? archiveHTML() : scr === 'learn' ? learnHTML() : scr === 'onboard' ? onboardHTML() : reportHTML('grad');
+    el.innerHTML = scr === 'home' ? homeHTML() : scr === 'archive' ? archiveHTML().replace('</header>', `</header>${youngHTML()}`) : scr === 'learn' ? learnHTML()
+      : scr === 'onboard' ? onboardHTML() : scr === 'repo' ? repoHTML() : scr === 'hot' ? hotHTML() : reportHTML('grad');
     if (scr === 'onboard') el.querySelectorAll('md-radio[name="orole"]').forEach(r => r.addEventListener('change', () => { onbRole = r.value; render('onboard', el); }));
   }
 
@@ -254,6 +344,7 @@ const GradPages = (() => {
         break;
       }
       case 'clear': topic = null; break;
+      case 'gdoc': gdoc = el.dataset.id; if (App.state.role === 'grad' && App.state.screen === 'repo') render('repo', host); else App.set({ role: 'grad', screen: 'repo' }); Shell.refresh('grad', ['repo']); return;
       case 'quiz': App.toast('Priya’s twin will quiz you on vendor files at the end of the day. 5 questions.'); return;
       case 'onb-next': onbStep = Math.min(3, onbStep + 1); break;
       case 'onb-back': onbStep = Math.max(0, onbStep - 1); break;

@@ -432,7 +432,7 @@ const Senior = (() => {
   }
   function rerender() { if (screen === 'home') body.innerHTML = homeHTML(); else if (screen === 'queue') renderQueuePage(); else if (screen === 'hot' || screen === 'twin') rerenderHot(); updateCounts(); }
   // keep the scroll position when the Hot spots or Your twin page re-renders after a change
-  function rerenderHot() { if (screen !== 'hot' && screen !== 'twin') return; const y = body.scrollTop; SeniorPages.render(screen, body); body.scrollTop = y; Shell.refresh('senior', ['hot', 'files']); }
+  function rerenderHot() { if (screen !== 'hot' && screen !== 'twin') return; const y = body.scrollTop; SeniorPages.render(screen, screen === 'twin' ? body.querySelector('.wi-twin-body') : body); body.scrollTop = y; Shell.refresh('senior', ['hot', 'files']); }
 
   function onAct(act, el) {
     const row = el.closest('.m3-drow, .m3-qrow');
@@ -493,9 +493,17 @@ const Senior = (() => {
     }
   }
 
+  const TWIN_TABS = [['twin', 'What it knows', 'diversity_3'], ['report', 'Your year', 'insights'], ['persona', 'How Techne asks', 'auto_awesome']];
   function show(scr) {
     screen = scr;
     hideSheet();
+    if (TWIN_TABS.some(([t]) => t === scr)) {
+      body.classList.remove('full'); body.scrollTop = 0;
+      SeniorPages.render(scr, Shell.subTabs(body, TWIN_TABS, scr));
+      if (scr === 'report') heatmap();
+      updateCounts();
+      return;
+    }
     $('#senior').dataset.screen = scr;
     body.classList.toggle('full', scr === 'ide');
     body.scrollTop = 0;
@@ -767,9 +775,9 @@ const Senior = (() => {
         { id: 'repo', icon: 'library_books', label: 'Repository' },
         { id: 'hot', icon: 'local_fire_department', label: 'Hot spots' },
       ],
-      me: { name: 'Priya R.', sub: 'Senior · COBOL and procurement' },
-      menu: [['twin', 'Your twin', 'diversity_3'], ['report', 'Your year', 'insights'], ['persona', 'How Techne asks', 'auto_awesome']],
-      tabs: { home: ['Home', 'home'], twin: ['Your twin', 'diversity_3'], queue: ['Question Queue', 'inbox'], repo: ['Company repository', 'library_books'], ide: ['VENDSYNC.jcl', 'description'], hot: ['Hot spots', 'local_fire_department'], persona: ['How Techne asks', 'auto_awesome'], report: ['Your year', 'insights'] },
+      me: { name: 'Priya R.', sub: 'Senior · COBOL and procurement', screen: 'twin' },
+      tabs: { home: ['Home', 'home'], twin: ['Your twin', 'diversity_3'], queue: ['Question Queue', 'inbox'], repo: ['Company repository', 'library_books'], ide: ['VENDSYNC.jcl', 'description'], hot: ['Hot spots', 'local_fire_department'] },
+      tabOf: scr => TWIN_TABS.some(([t]) => t === scr) ? 'twin' : scr,
       side: sideView, sideAfter, status: statusHTML,
       search: { label: 'Search the company repository, files and commands' },
       onSearch: () => shellAct('search'),
