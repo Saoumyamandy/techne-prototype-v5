@@ -276,6 +276,11 @@
 #grad .ahead { display: flex; align-items: center; gap: 8px; margin: 0 -8px 4px 0; --md-icon-size: 20px; }
 #grad .ahead > md-icon { color: var(--md-sys-color-primary); }
 #grad .ahead md-icon-button { margin-left: auto; }
+#grad .ahead md-icon-button + md-icon-button { margin-left: -8px; }
+#grad .ghead-acts { display: flex; align-items: center; }
+/* inline card: a follow-up here continues in the Ask panel */
+#grad .g-ask { margin-top: 12px; }
+#grad .g-ask md-outlined-text-field { width: 100%; --md-outlined-text-field-container-shape: 24px; --md-outlined-text-field-top-space: 10px; --md-outlined-text-field-bottom-space: 10px; --md-outlined-text-field-leading-icon-color: var(--md-sys-color-primary); }
 #grad .acard.done { padding-top: 16px; }
 #grad .corner-x { position: absolute; top: 4px; right: 4px; }
 #grad .srow { display: flex; align-items: center; gap: 8px; min-height: 28px; color: var(--md-sys-color-on-surface-variant); font: 400 14px/20px var(--md-ref-typeface-plain); letter-spacing: .25px; --md-icon-size: 18px; }

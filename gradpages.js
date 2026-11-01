@@ -171,22 +171,64 @@ const GradPages = (() => {
     });
   }
 
-  // ── side bar views: Your twin and Learning path ──
+  // ── side bar views: Your twin and Learning path follow the code you have open ──
+  // what each scenario is about, so the views can show what's relevant to it
+  const ISSUE = {
+    checked: { what: 'Copybook not found: VENDREC', topics: ['Copybooks'], twin: 'priya', knows: 'Local COBOL builds · 24 docs, verified',
+      skill: ['COBOL builds and listings', 62, 95], steps: [['Fix a copybook error with Priya’s twin', 'now'], ['Set COBCPY once for every repo', 'next'], ['Read a compile listing', 'next']] },
+    unchecked: { what: 'Invalid numeric data in PO-AMT', topics: ['Test data'], twin: null, knows: 'Nobody’s twin covers this yet. Your workaround goes to the Question Queue.',
+      skill: ['Procurement domain', 35, 96], steps: [['Read the PO record layout in the copybook', 'next'], ['Run the PO batch in test', 'next'], ['Ask Dev K.’s twin about test data', 'later']] },
+    filecopy: { what: 'PROC-512 · PDF invoices in the nightly copy', topics: ['Vendor files', 'PDF invoices'], twin: 'priya', knows: 'Nightly vendor file copy · 11 docs, 1 inferred',
+      skill: ['Vendor files and the nightly copy', 40, 92], steps: [['PROC-512: PDF invoices in the file copy', 'now'], ['Run the PO batch in test', 'next'], ['VSAM vs the nightly export', 'later']] },
+    restart: { what: 'VENDSYNC failed at step 3 (SQLCODE -911)', topics: ['JCL', 'Vendor sync'], twin: 'priya', knows: 'Vendor sync and restarts · 18 docs, verified',
+      skill: ['Batch and JCL restarts', 15, 70], steps: [['Restart VENDSYNC from the failed step', 'now'], ['Shadow Dev K.’s twin on a JCL restart', 'next'], ['Read “Restarting a failed JCL step”', 'next']] },
+  };
   const openPage = (scr, label) => `<md-icon-button data-wi-screen="${scr}" aria-label="${label}" title="${label}"><md-icon>open_in_new</md-icon></md-icon-button>`;
+  const twinRow = i => `<md-list-item type="button" data-wi-screen="archive" class="${i.fresh ? 'on' : ''}"><md-icon slot="start">${TYPE[i.type][0]}</md-icon><div slot="headline">${i.title}</div><div slot="supporting-text">${TYPE[i.type][1]} · ${VIS[i.vis][1]}</div></md-list-item>`;
+  const stepRow = ([t, st]) => `<md-list-item type="button" data-wi-screen="learn" class="${st === 'now' ? 'on' : st === 'done' ? 'done' : ''}"><md-icon slot="start">${st === 'done' ? 'check_circle' : st === 'now' ? 'play_circle' : st === 'later' ? 'lock' : 'radio_button_unchecked'}</md-icon><div slot="headline">${t}</div></md-list-item>`;
+  const progress = () => `<div class="wi-sec md-typescale-label-large"><span>Your path</span><span>Week 2 of 6</span></div>
+    <md-linear-progress value="0.333" aria-label="Onboarding: week 2 of 6"></md-linear-progress>`;
+  const ctxCard = (label, I, file) => `<div class="wi-ctx"><span class="md-typescale-label-medium">${label}</span>${file ? `<span class="wi-ctx-file">${sym('description')}${file}</span>` : ''}<span class="md-typescale-body-small">${I.what}</span></div>`;
   function side(v) {
-    if (v === 'twin') return {
-      title: 'Your twin', acts: openPage('archive', 'Open Your twin'),
-      body: `<div class="wi-note md-typescale-body-small">${sym('lock')}<span>${total()} things saved. Private until you share one.</span></div>
-        <div class="wi-sec md-typescale-label-large">Recent</div>
-        <md-list>${items.slice(0, 7).map(i => `<md-list-item type="button" data-wi-screen="archive" class="${i.fresh ? 'on' : ''}"><md-icon slot="start">${TYPE[i.type][0]}</md-icon><div slot="headline">${i.title}</div><div slot="supporting-text">${TYPE[i.type][1]} · ${VIS[i.vis][1]}</div></md-list-item>`).join('')}</md-list>`,
-    };
+    const I = Grad.inCode() && ISSUE[Grad.issue()];
+    if (v === 'twin') {
+      const openBtn = `<md-outlined-button data-wi-screen="archive">${sym('open_in_new', 'icon')}Open Your twin</md-outlined-button>`;
+      if (!I) return {
+        title: 'Your twin', acts: openPage('archive', 'Open Your twin'),
+        body: `<div class="wi-note md-typescale-body-small">${sym('lock')}<span>${total()} things saved. Private until you share one.</span></div>
+          <div class="wi-sec md-typescale-label-large">Recent</div><md-list>${items.slice(0, 7).map(twinRow).join('')}</md-list>`,
+        foot: `<md-filled-tonal-button data-wi-screen="archive">${sym('diversity_3', 'icon')}Open Your twin</md-filled-tonal-button>`,
+      };
+      const about = items.filter(i => i.fresh || i.topics?.some(t => I.topics.includes(t)));
+      const t = I.twin && DATA.twins[I.twin];
+      return {
+        title: 'Your twin', acts: openPage('archive', 'Open Your twin'),
+        body: `${ctxCard('About the code you have open', I, Grad.file())}
+          <div class="wi-sec md-typescale-label-large">Saved about this</div>
+          ${about.length ? `<md-list>${about.map(twinRow).join('')}</md-list>`
+            : `<div class="wi-note md-typescale-body-small">${sym('bookmark_add')}<span>Nothing saved about this yet. Document it once it works, and next time help is one line.</span></div>`}
+          <div class="wi-sec md-typescale-label-large">Who knows this</div>
+          <div class="wi-who ${t ? '' : 'none'}"><span class="m3-avatar sm">${t ? t.initial : '?'}</span><div><div class="md-typescale-title-small">${t ? `${t.name}’s twin` : 'No twin yet'}</div><div class="md-typescale-body-small m3-muted">${I.knows}</div></div></div>`,
+        foot: `<md-filled-button data-wi-act="document">${sym('note_add', 'icon')}Document this solution</md-filled-button>${openBtn}`,
+      };
+    }
     const L = DATA.learning;
+    const foot = `<md-filled-tonal-button data-wi-screen="learn">${sym('route', 'icon')}Open full learning path</md-filled-tonal-button>`;
+    if (!I) return {
+      title: 'Learning path', acts: openPage('learn', 'Open the learning path'), foot,
+      body: `${progress()}${L.weeks.map(w => `<div class="wi-sec md-typescale-label-large">Week ${w.w} · ${w.title}</div><md-list>${w.items.map(stepRow).join('')}</md-list>`).join('')}`,
+    };
+    const [sk, me, sr] = I.skill;
     return {
-      title: 'Learning path', acts: openPage('learn', 'Open the learning path'),
-      body: `<div class="wi-sec md-typescale-label-large"><span>Onboarding</span><span>Week 2 of 6</span></div>
-        <md-linear-progress value="0.333" aria-label="Onboarding: week 2 of 6"></md-linear-progress>
-        ${L.weeks.map(w => `<div class="wi-sec md-typescale-label-large">Week ${w.w} · ${w.title}</div>
-          <md-list>${w.items.map(([t, st]) => `<md-list-item type="button" data-wi-screen="learn" class="${st === 'now' ? 'on' : st === 'done' ? 'done' : ''}"><md-icon slot="start">${st === 'done' ? 'check_circle' : st === 'now' ? 'play_circle' : 'radio_button_unchecked'}</md-icon><div slot="headline">${t}</div></md-list-item>`).join('')}</md-list>`).join('')}`,
+      title: 'Learning path', acts: openPage('learn', 'Open the learning path'), foot,
+      body: `${ctxCard('For the issue you’re on', I)}
+        <div class="wi-skill"><div class="wi-skill-row md-typescale-body-medium"><span>${sk}</span><b>${me}%</b></div>
+          <div class="wi-bars"><i class="back" style="width:${sr}%"></i><i class="front" style="width:${me}%"></i></div>
+          <span class="md-typescale-body-small m3-muted">You ${me}% · Priya R.’s twin ${sr}%</span></div>
+        <div class="wi-sec md-typescale-label-large">Learn this next</div>
+        <md-list>${I.steps.map(stepRow).join('')}</md-list>
+        <md-text-button data-gact="quiz">${sym('diversity_3', 'icon')}Ask Priya’s twin to quiz you</md-text-button>
+        ${progress()}`,
     };
   }
 

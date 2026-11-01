@@ -10,7 +10,7 @@ const Grad = (() => {
 
   let root, ide, editor, termBody, layer, svg, sp, divider, side, gpage, modal;
   let S, opts;
-  let step = -1, ready = false, seniorOn = true, patched = false, screen = 'home', sentToPriya = false, begun = false, pendingAsk = false;
+  let step = -1, ready = false, seniorOn = true, patched = false, screen = 'home', sentToPriya = false, begun = false, pendingAsk = false, pinned = false;
   const knownMode = () => opts.seen === '1' && S.known;
   let placed = null;
   let anchored = [];
@@ -191,7 +191,8 @@ const Grad = (() => {
     return `<div class="verif"><span class="m3-avatar sm">${t.initial}</span><div class="vtext"><div class="md-typescale-title-small">From ${t.name}’s twin</div><div class="md-typescale-body-small m3-muted">${t.role}</div></div>${badge}</div>`;
   }
   // card header: who is speaking, what they noticed, and a dismiss button
-  const cardHead = (ic, who, what) => `<div class="ahead">${sym(ic)}<span class="md-typescale-title-small">${who}</span><span class="md-typescale-body-small m3-muted">${what}</span><md-icon-button data-act="dismiss" aria-label="Dismiss">${sym('close')}</md-icon-button></div>`;
+  const pinBtn = () => `<md-icon-button data-act="pin" title="Pin to the Ask panel" aria-label="Pin to the Ask panel">${sym('push_pin')}</md-icon-button>`;
+  const cardHead = (ic, who, what, pin) => `<div class="ahead">${sym(ic)}<span class="md-typescale-title-small">${who}</span><span class="md-typescale-body-small m3-muted">${what}</span>${pin ? pinBtn() : ''}<md-icon-button data-act="dismiss" aria-label="Dismiss">${sym('close')}</md-icon-button></div>`;
   // code to run, with its actions under it
   const codeBox = (code, acts) => `<div class="g-code">${code}</div><div class="g-code-acts">${acts}</div>`;
   const runBtn = label => `<md-filled-button data-act="run">${sym('play_arrow', 'icon')}${label}</md-filled-button>`;
@@ -263,7 +264,7 @@ const Grad = (() => {
     if (!['glass', 'inline'].includes(opts.wt)) { openPanel(true); return; }
     clearGuide();
     const c = makeCard('acard glass', `
-      ${cardHead('auto_awesome', 'Senior Techne', 'is looking into it')}
+      ${cardHead('auto_awesome', 'Senior Techne', 'is looking into it', true)}
       ${searchHTML()}<div class="found" data-found hidden></div>`);
     anchor(c);
     runSearch(c, () => {
@@ -338,7 +339,7 @@ const Grad = (() => {
     const inline = opts.wt === 'inline';
     const c = makeCard(`gcard glass ${inline ? 'inline' : ''}`, `
       ${inline ? '<i class="notch"></i>' : `<span class="badge md-typescale-label-large">${i + 1}</span>`}
-      <div class="ghead"><span class="md-typescale-label-medium">Step ${i + 1} of ${S.steps.length}</span><md-icon-button data-act="end" title="End walkthrough" aria-label="End walkthrough">${sym('close')}</md-icon-button></div>
+      <div class="ghead"><span class="md-typescale-label-medium">Step ${i + 1} of ${S.steps.length}</span><span class="ghead-acts">${pinBtn()}<md-icon-button data-act="end" title="End walkthrough" aria-label="End walkthrough">${sym('close')}</md-icon-button></span></div>
       ${App.stepTag(s)}
       <h4 class="md-typescale-title-medium">${s.title}</h4>
       ${brief(s.body)}
@@ -349,7 +350,9 @@ const Grad = (() => {
           ${i > 0 ? '<md-text-button data-act="back">Back</md-text-button>' : ''}
           ${i < S.steps.length - 1 ? `<md-filled-button data-act="next" trailing-icon>Next${sym('arrow_forward', 'icon')}</md-filled-button>` : ''}
         </div>
-      </div>`);
+      </div>
+      <div class="g-ask"><md-outlined-text-field class="g-ask-q" placeholder="Ask a follow-up" aria-label="Ask a follow-up. It continues in the Ask panel."><md-icon slot="leading-icon">auto_awesome</md-icon><md-icon-button slot="trailing-icon" data-act="inline-send" aria-label="Send">${sym('arrow_upward')}</md-icon-button></md-outlined-text-field></div>`);
+    c.querySelector('.g-ask-q').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); askFromInline(); } });
     placed = { card: c, s };
     place();
     if (opts.wt === 'both') renderProgress();
@@ -397,47 +400,85 @@ const Grad = (() => {
       <circle class="chalo" cx="${x2}" cy="${y2}" r="11"/><circle class="cdot" cx="${x2}" cy="${y2}" r="4"/>`;
   }
 
-  // ── Split and Both: the Senior Techne side panel ──
-  function openPanel(withSearch) {
-    clearGuide();
-    dropAnchored();
+  // ── the Ask panel: Senior Techne's chat, and where a walkthrough goes when you pin it ──
+  function panelShell(mode, thread, sugg, placeholder) {
     sp.hidden = false;
     divider.hidden = false;
     sp.style.width = `${panelW}px`;
-    nudge(false);
-    helpBtn().classList.add('away');
+    sp.dataset.mode = mode;
     const ctx = S.error ? `${S.file}:${S.errLine}` : S.ticket;
     sp.innerHTML = `
-      <div class="sp-head"><span class="sp-av">${sym('auto_awesome')}</span><div class="sp-title"><span class="md-typescale-title-medium">Senior Techne</span><span class="sp-from md-typescale-body-small m3-muted"></span></div><md-icon-button data-act="close-panel" title="Close" aria-label="Close">${sym('close')}</md-icon-button></div>
+      <div class="sp-head"><span class="sp-av">${sym('auto_awesome')}</span><div class="sp-title"><span class="md-typescale-title-medium">Senior Techne</span><span class="sp-from md-typescale-body-small m3-muted">${mode === 'chat' ? '· ask anything' : ''}</span></div>
+        ${pinned ? `<md-icon-button data-act="unpin" title="Unpin: back onto the code" aria-label="Unpin: back onto the code">${sym('keep_off')}</md-icon-button>` : ''}
+        <md-icon-button data-act="close-panel" title="Close" aria-label="Close">${sym('close')}</md-icon-button></div>
       <div class="sp-ctx" id="sp-ctx">
         <span class="ctx-label md-typescale-label-medium">Context</span>
         <md-chip-set id="sp-chips">
-          <md-assist-chip label="${S.error ? 'Terminal output' : S.ticket}"><md-icon slot="icon">${S.error ? 'terminal' : 'link'}</md-icon></md-assist-chip>
-          <md-assist-chip label="${S.error ? ctx : S.file}"><md-icon slot="icon">description</md-icon></md-assist-chip>
+          ${mode === 'chat' ? '' : `<md-assist-chip label="${S.error ? 'Terminal output' : S.ticket}"><md-icon slot="icon">${S.error ? 'terminal' : 'link'}</md-icon></md-assist-chip>`}
+          <md-assist-chip label="${S.error && mode !== 'chat' ? ctx : S.file}"><md-icon slot="icon">description</md-icon></md-assist-chip>
           <md-assist-chip class="add" data-act="add-ctx" label="Add context"><md-icon slot="icon">add</md-icon></md-assist-chip>
         </md-chip-set>
       </div>
-      <div class="sp-thread" id="sp-thread">
-        <div class="msg me"><div class="bubble">${S.ask ? S.ask : S.error ? `My <code>${S.run.split(' ')[0]}</code> failed with <code>${S.short}</code>. What’s going on?` : `I’m on ${S.ticket}: include PDF invoices in the nightly vendor file copy. Where do I start?`}</div></div>
-        <div class="msg ai" id="sp-answer"><div class="who md-typescale-label-medium">${sym('auto_awesome')}Senior Techne</div><div class="abody"></div></div>
-      </div>
-      <md-chip-set class="sp-sugg">${(S.error ? ['Why does this happen?', 'What if it fails again?', 'Who else hit this?'] : ['What could break?', 'Who owns this job?', 'How do I test it?']).map(q => `<md-suggestion-chip data-act="sugg" label="${q}"></md-suggestion-chip>`).join('')}</md-chip-set>
+      <div class="sp-thread" id="sp-thread">${thread}</div>
+      <md-chip-set class="sp-sugg">${sugg.map(q => `<md-suggestion-chip data-act="sugg" label="${q}"></md-suggestion-chip>`).join('')}</md-chip-set>
       <form class="sp-input" id="sp-input">
-        <md-outlined-text-field id="sp-q" type="textarea" rows="2" placeholder="Ask a follow-up, or paste a log or link" aria-label="Ask a follow-up"></md-outlined-text-field>
+        <md-outlined-text-field id="sp-q" type="textarea" rows="2" placeholder="${placeholder}" aria-label="Ask Senior Techne"></md-outlined-text-field>
         <div class="sp-row"><md-icon-button type="button" data-act="add-ctx" title="Add context" aria-label="Add context">${sym('attach_file')}</md-icon-button><span class="md-typescale-body-small m3-muted">Enter to send</span><md-filled-button type="submit" trailing-icon>Send${sym('arrow_upward', 'icon')}</md-filled-button></div>
       </form>`;
+    sp.querySelector('#sp-input').onsubmit = e => { e.preventDefault(); followUp(); };
+    sp.querySelector('#sp-q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); followUp(); } });
+    later(relayout, 30);
+  }
+  const aiMsg = (html, id = '') => `<div class="msg ai" ${id ? `id="${id}"` : ''}><div class="who md-typescale-label-medium">${sym('auto_awesome')}Senior Techne</div><div class="abody">${html}</div></div>`;
+  // The rail's star: a chat about this repo, answered from seniors' twins
+  function openChat() {
+    clearGuide();
+    dropAnchored();
+    nudge(false);
+    pinned = false;
+    panelShell('chat', aiMsg(`<p>Ask me anything about procurement-core. I answer from seniors’ twins, say whose, and tell you when no twin covers it yet.</p>`),
+      ['Where do copybooks live?', 'Why does VENDSYNC fail on restart?', 'How do I read the VSAM file for a report?'], 'Ask about this repo, or paste a log or link');
+    later(() => $('#sp-q')?.focus(), 120);
+  }
+  // Pin moves the inline walkthrough into the panel at the same step; unpin puts it back onto the code
+  function pin() {
+    const at = Math.max(step, 0);
+    pinned = true;
+    opts.wt = 'split';
+    openPanel(false, at);
+  }
+  function unpin() {
+    const at = Math.max(step, 0);
+    pinned = false;
+    opts.wt = 'inline';
+    closePanel();
+    showGlassStep(at);
+  }
+  // A follow-up typed on the inline card pins the walkthrough and continues in the Ask panel
+  function askFromInline() {
+    const q = layer.querySelector('.g-ask-q')?.value.trim();
+    if (!q) { App.toast('Type a question first.'); layer.querySelector('.g-ask-q')?.focus(); return; }
+    pin();
+    $('#sp-q').value = q;
+    followUp();
+  }
+
+  function openPanel(withSearch, at = 0) {
+    clearGuide();
+    dropAnchored();
+    nudge(false);
+    helpBtn().classList.add('away');
+    panelShell('walk', `<div class="msg me"><div class="bubble">${S.ask ? S.ask : S.error ? `My <code>${S.run.split(' ')[0]}</code> failed with <code>${S.short}</code>. What’s going on?` : `I’m on ${S.ticket}: include PDF invoices in the nightly vendor file copy. Where do I start?`}</div></div>${aiMsg('', 'sp-answer')}`,
+      S.error ? ['Why does this happen?', 'What if it fails again?', 'Who else hit this?'] : ['What could break?', 'Who owns this job?', 'How do I test it?'], 'Ask a follow-up, or paste a log or link');
     const body = sp.querySelector('#sp-answer .abody');
     const reveal = () => {
       sp.querySelector('.sp-from').innerHTML = `· ${fromLine(S.answer)}`;
       sp.querySelector('.sp-head').insertAdjacentHTML('beforeend', '');
       body.insertAdjacentHTML('beforeend', `<div class="found">${foundHTML(S.answer, false)}</div>`);
-      startPanelSteps(body);
+      startPanelSteps(body, at);
     };
     if (withSearch) { body.innerHTML = searchHTML(); runSearch(body, reveal); }
     else reveal();
-    sp.querySelector('#sp-input').onsubmit = e => { e.preventDefault(); followUp(); };
-    sp.querySelector('#sp-q').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); followUp(); } });
-    later(relayout, 30);
   }
   function closePanel() {
     sp.hidden = true;
@@ -448,10 +489,10 @@ const Grad = (() => {
     helpBtn().classList.remove('away');
   }
 
-  function startPanelSteps(body) {
+  function startPanelSteps(body, at = 0) {
     if (opts.wt === 'split') {
       body.insertAdjacentHTML('beforeend', `<ol class="psteps" id="psteps"></ol>`);
-      showPanelStep(0);
+      showPanelStep(at);
     } else {
       body.insertAdjacentHTML('beforeend', `<p class="pnote">I’ve pinned the steps onto your code. Follow them there, or jump to one here.</p><ol class="pprog" id="pprog"></ol>`);
       showGlassStep(0);
@@ -496,10 +537,23 @@ const Grad = (() => {
     th.insertAdjacentHTML('beforeend', `<div class="msg ai"><div class="who md-typescale-label-medium">${sym('auto_awesome')}Senior Techne</div><div class="abody"><span class="typing"><i></i><i></i><i></i></span></div></div>`);
     th.scrollTop = th.scrollHeight;
     later(() => {
-      const r = S.reply;
-      th.lastElementChild.querySelector('.abody').innerHTML = `${App.stepTag(r)}${brief(r.text)}${r.twin ? '' : `<div class="queued">${sym('group')}Added to the Question Queue for any senior</div>`}`;
+      const r = replyFor(q);
+      th.lastElementChild.querySelector('.abody').innerHTML = `${App.stepTag(r)}${brief(r.text)}${r.status === 'unknown' ? `<div class="queued">${sym('group')}Added to the Question Queue for any senior</div>` : ''}`;
       th.scrollTop = th.scrollHeight;
     }, 1000);
+  }
+  const CHAT = [
+    [/copybook|cobcpy|vendrec/i, { twin: 'priya', status: 'verified', text: 'Copybooks live in <code>copybooks/</code>. Set <code>COBCPY=./copybooks</code> before you build, and add it to <code>~/.zshrc</code> so every terminal has it.' }],
+    [/restart|vendsync|-911|lock/i, { twin: 'priya', status: 'verified', text: 'Restart VENDSYNC from the failed step, not the top. Steps 1 and 2 already committed to VENDMAST, and a -911 at step 3 usually means the 4 PM report holds a lock.' }],
+    [/vsam|report/i, { twin: 'priya', status: 'verified', text: 'Read the nightly CSV export for reports, not the VSAM file. The export is consistent and doesn’t lock VENDMAST.' }],
+    [/pdf|invoice|vendor_copy|file copy/i, { twin: 'priya', status: 'inferred', text: 'PDF invoices should copy to their own folder before the done marker, so the 2 AM PO batch sees them. Priya hasn’t confirmed the folder yet.' }],
+    [/numeric|po-amt|s0c7|test data/i, { twin: null, status: 'general', text: 'Bad numeric data usually means the test file has spaces where the field expects digits. Compare the record layout in the copybook with the data.' }],
+  ];
+  function replyFor(q) {
+    const hit = CHAT.find(([re]) => re.test(q));
+    if (hit) return hit[1];
+    if (sp.dataset.mode === 'walk') return S.reply;
+    return { twin: null, status: 'unknown', text: 'No twin covers this yet, so I won’t guess. I’ve added it to the Question Queue, and the senior who answers teaches their twin too.' };
   }
 
   const ADD_CTX = [['description', 'README.md'], ['image', 'Screenshot'], ['link', 'Ticket PROC-482'], ['terminal', 'run.log']];
@@ -671,7 +725,10 @@ const Grad = (() => {
       case 'back': goStep(step - 1); break;
       case 'goto': if (+el.dataset.i !== step) goStep(+el.dataset.i); break;
       case 'end': clearGuide(); step = -1; helpBtn().classList.remove('away'); if (!sp.hidden) renderProgress(); break;
-      case 'close-panel': closePanel(); break;
+      case 'close-panel': pinned = false; if (opts.wt === 'split' && App.state.wt !== 'split') opts.wt = App.state.wt; closePanel(); break;
+      case 'pin': pin(); break;
+      case 'unpin': unpin(); break;
+      case 'inline-send': askFromInline(); break;
       case 'copy': {
         const label = el.querySelector('span');
         navigator.clipboard?.writeText(S.steps.find(s => s.code).code)
@@ -776,16 +833,17 @@ const Grad = (() => {
       case 'bell': App.toast(seniorOn ? 'No new answers. Senior Techne will tell you when a senior replies.' : 'Senior Techne is off, so it won’t notify you.'); break;
       case 'collapse-tree': App.toast('Only this ticket’s folders are in the prototype.'); break;
       case 'startup': App.toast('Home opens when you start Techne. Turn it off in Settings.'); break;
+      case 'document': App.set({ screen: 'save' }); break;
       case 'soon': App.toast('Not in this prototype. Continue the ticket or ask Senior Techne.'); break;
       default: GradPages.shellAct?.(act);
     }
   }
-  // Ask Senior Techne from anywhere: opens the code and its help once the workspace is read
+  // The rail's star: Senior Techne's chat, beside the code. A walkthrough in progress is pinned there instead.
   function ask() {
-    if (screen === 'ide' || screen === 'save') { openHelp(); return; }
-    pendingAsk = true;
-    App.set({ screen: 'ide' });
-    if (ready) { pendingAsk = false; later(openHelp, 200); }
+    if (screen !== 'ide' && screen !== 'save') App.set({ screen: 'ide' });
+    if (!sp.hidden) { $('#sp-q')?.focus(); return; }
+    if (step >= 0 && placed) { pin(); later(() => $('#sp-q')?.focus(), 120); return; }
+    openChat();
   }
 
   function init() {
@@ -834,7 +892,7 @@ const Grad = (() => {
     stop();
     opts = { wt: st.wt, help: st.help, sc: st.sc, seen: st.seen };
     S = DATA.scenarios[opts.sc] || DATA.scenarios.checked;
-    step = -1; ready = false; patched = false; sentToPriya = false; begun = false; pendingAsk = false;
+    step = -1; ready = false; patched = false; sentToPriya = false; begun = false; pendingAsk = false; pinned = false;
     ide.dataset.help = opts.help;
     ide.dataset.wt = opts.wt;
     sp.hidden = true; divider.hidden = true; sp.innerHTML = '';
@@ -857,6 +915,8 @@ const Grad = (() => {
     setTimeout(() => { Shell.refresh('grad'); Shell.renderStatus('grad'); });
   }
   const file = () => S?.file;
+  const issue = () => S?.key;
+  const inCode = () => screen === 'ide' || screen === 'save';
   const task = () => S?.key === 'filecopy' ? 'PROC-512' : S?.file;
-  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task };
+  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task, issue, inCode };
 })();

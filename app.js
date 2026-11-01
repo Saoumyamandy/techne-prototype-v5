@@ -26,7 +26,7 @@ const App = (() => {
     senior: [['home', 'Home'], ['twin', 'Your twin'], ['queue', 'Question Queue'], ['repo', 'Company repository'], ['ide', 'Your IDE'], ['hot', 'Hot spots'], ['persona', 'How Techne’s questions are built'], ['report', 'Year-end report']],
     mobile: [['approvals', 'Senior · your twin’s drafts'], ['probes', 'Senior · Techne’s questions'], ['slack', 'New grad · Slack'], ['archive', 'New grad · your twin']],
   };
-  const state = { role: 'grad', screen: 'home', wt: 'split', help: 'terminal', sc: 'checked', seen: '0', theme: 'light' };
+  const state = { role: 'grad', screen: 'home', wt: 'inline', help: 'terminal', sc: 'checked', seen: '0', theme: 'light' };
   const modules = {};
   let started = null;
 

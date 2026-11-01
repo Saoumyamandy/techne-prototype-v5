@@ -11,11 +11,18 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 - Home is the VS Code welcome page: Start and Recent on the left. On the right, the learning path for new grads; for seniors, Needs you, with drafts and questions in one tagged list.
 - Shell controls use `data-wi-*` attributes (handled in `shell.js`); page controls keep `data-act`, `data-sact` and `data-gact`.
 
+## New grad help and side bar (decided with the user, 2026-11-01, round 2)
+- The rail's star (Ask Senior Techne) opens a chat in the right panel: ask anything, answered from seniors' twins, or "no twin covers this" (sent to the Question Queue). A walkthrough in progress is pinned there instead.
+- Need help opens the Inline walkthrough by default. The pin on an inline card moves the walkthrough into the right panel at the same step; unpin puts it back on the code. A follow-up typed on the inline card pins it and continues in the panel.
+- Side bar views follow the code you have open, as VS Code's do: the code stays in the editor. Your twin shows what's saved about the open file and who knows it, with "Document this solution" (the save dialog) at the bottom. Learning shows the path for the issue you're on. With no code open (Home, other pages) both show everything.
+- Each of those views ends with a clear button to open the full page.
+- Colour: Google blue (#0B57D0) on white. No purple.
+
 ## Setup
 - Material Web (`@material/web` 2.5.0) through the CDN import map in `index.html`. No build step.
 - `m3.js` imports the single `@material/web/all.js` bundle. esm.run bundles each entry point separately, so importing components one by one registers shared pieces (md-ripple, md-elevation) twice and throws.
 - Use the material3 MCP server (`.mcp.json`) for component code, design tokens and icons. Read material-web.dev for component APIs.
-- Colours come only from `tokens.css`: `--md-sys-color-*` generated from seed #6750A4 (SchemeTonalSpot), light and dark, plus `--md-custom-color-success|warning` harmonised to the seed. Regenerate it, don't hand-edit it.
+- Colours come only from `tokens.css`: `--md-sys-color-*` generated from seed #0B57D0 (Google blue) with the seed's full chroma on Tonal Spot roles, cool near-neutral greys, a teal-blue tertiary and pure white light surfaces, light and dark, plus `--md-custom-color-success|warning` harmonised to the seed. The generator is `m3gen/gen5.mjs` in the session scratchpad (bundle with esbuild first). Regenerate it, don't hand-edit it.
 
 ## Make it look like M3, not a re-skin
 - M3 type scale in Roboto Flex through the `md-typescale-*` classes: body 14–16px, titles 22px, headlines 28–32px. Code is Roboto Mono.

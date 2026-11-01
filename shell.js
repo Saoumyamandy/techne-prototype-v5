@@ -12,7 +12,7 @@ const Shell = (() => {
   const current = role => App.state.role === role ? tabOf(role, App.state.screen) : 'home';
 
   // cfg: root, view, rail [{id, icon, label, badge?, tone?}], fab?, me, menu [[screen, label, icon]],
-  // tabs {screen: [label | () => label, icon]}, tabOf?, side(view) → {title, acts, body}, sideAfter?(view, el),
+  // tabs {screen: [label | () => label, icon]}, tabOf?, side(view) → {title, acts, body, foot?}, sideAfter?(view, el),
   // status() → html, search {label}, onSearch(), act(name, el), hidePreview(), showPreview(), closePreview()
   function register(role, cfg) {
     C[role] = cfg;
@@ -53,7 +53,7 @@ const Shell = (() => {
     root(role).classList.toggle('side-off', collapsed[role]);
     if (collapsed[role]) { side.innerHTML = ''; return; }
     const s = C[role].side(v);
-    side.innerHTML = `<header class="wi-side-h"><h2 class="md-typescale-title-small">${s.title}</h2><span class="wi-side-acts">${s.acts || ''}</span></header><div class="wi-side-b" data-view="${v}">${s.body}</div>`;
+    side.innerHTML = `<header class="wi-side-h"><h2 class="md-typescale-title-small">${s.title}</h2><span class="wi-side-acts">${s.acts || ''}</span></header><div class="wi-side-b" data-view="${v}">${s.body}</div>${s.foot ? `<footer class="wi-side-foot">${s.foot}</footer>` : ''}`;
     C[role].sideAfter?.(v, side);
   }
   // pressing the open view again hides the side bar, as in VS Code

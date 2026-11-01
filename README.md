@@ -11,7 +11,7 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 - **Status bar:** the branch, the Senior Techne switch, onboarding week or credits, and whether your twin is learning.
 - **Home:** the VS Code welcome page. Start and Recent on the left; the learning path (new grad) or Needs you, drafts and questions together (senior), on the right.
 
-The design system is still v4's [Material Web](https://material-web.dev) build: tokens from seed #6750A4, the M3 type scale in Roboto Flex, and Material Symbols.
+The design system is v4's [Material Web](https://material-web.dev) build in Google blue on white: tokens from seed #0B57D0, the M3 type scale in Roboto Flex, and Material Symbols.
 
 Previous rounds:
 - v4: https://saoumyamandy.github.io/techne-prototype-v4/
@@ -32,14 +32,16 @@ Use the prototype bar at the top to switch between **New grad**, **Senior** and 
 
 **New grad**
 - **Home:** Continue the ticket, Ask Senior Techne, recent files, and this week's learning path with progress.
-- **Rail:** Ask Senior Techne (works from any tab), Explorer, Your twin (recent saves), Learning (weeks and steps). The avatar menu holds Your year and What Techne records.
+- **Ask Senior Techne** (the star on the rail): a chat beside the code. Ask anything; answers name the twin they came from, or say no twin covers it and send it to the Question Queue.
+- **Need help:** the inline walkthrough appears against the problem. Pin it to move it into the right panel, and type a follow-up on the card to continue there.
+- **Your twin and Learning follow your code:** with a file open, Your twin shows what you've saved about it, who knows it, and *Document this solution*; Learning shows the path for the issue you're on. Each has a button to open the full page. The avatar menu holds Your year and What Techne records.
 - **IDE**, with four scenarios. The scenario starts the first time its code is on screen:
   - *Covered*: Priya's twin has a verified answer.
   - *Not covered*: no twin covers it. Your workaround goes to the Question Queue.
   - *Restart after failure*: Maya's VENDSYNC fails at step 3 (SQLCODE -911). Senior Techne answers from Priya's twin (3 verified · 1 general), and "Where this comes from" traces each step back to Priya's session, her answer to Techne and her approval.
   - *File copy*: a task, not an error. General steps are mixed with steps from Priya's twin, and one inferred step is sent to Priya to confirm. It ends with a git commit and the save dialog.
 - **Seen before** (`#seen`): Maya's twin already holds the copybook fix, so help is one line with the command and Run in terminal.
-- **Walkthrough styles:** Split (the default), Glass, Inline (`#inline`: a glass card right against the problem, no connector line) or Both. **Help placement:** terminal button or corner button. The **Senior Techne** switch in the status bar sets whether help pops up on its own.
+- **Walkthrough styles:** Inline (the default: a glass card right against the problem, which you can pin to the panel), Split, Glass or Both. **Help placement:** terminal button or corner button. The **Senior Techne** switch in the status bar sets whether help pops up on its own.
 - **Your twin:** a knowledge graph and timeline. Items are private by default, and you can share them for credits.
 - **Learning path**, **What Techne records** (onboarding and permissions, never used in performance reviews), and **Your year** (a report you own).
 
@@ -76,7 +78,7 @@ Then open http://localhost:5198. It's plain HTML, CSS and JavaScript with no bui
 | --- | --- |
 | `index.html` | Page structure and the Material Web import map |
 | `m3.js` | Loads Material Web (`@material/web/all.js`) |
-| `tokens.css` | M3 colour tokens from seed #6750A4, light and dark. Generated, don't hand-edit |
+| `tokens.css` | M3 colour tokens from seed #0B57D0 (Google blue) with white surfaces, light and dark. Generated, don't hand-edit |
 | `m3.css` | Base, prototype bar, cards, snackbar, segmented button and senior pages |
 | `m3-shell.css` | Web IDE chrome: search bar, navigation rail, side bar, editor tabs, status bar, Home |
 | `m3-grad.css` | New grad IDE, walkthroughs and pages |
