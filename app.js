@@ -112,7 +112,7 @@ const App = (() => {
   function renderBar() {
     const bar = document.getElementById('pbar');
     bar.innerHTML = `
-      <span class="pb-name md-typescale-title-small"><i class="pb-dot"></i>Prototype</span>
+      <span class="pb-name md-typescale-title-small"><i class="pb-dot"></i>Controls</span>
       ${seg('role', [['grad', 'New grad', 'school'], ['senior', 'Senior', 'person'], ['mobile', 'Mobile', 'smartphone']])}
       <span class="pb-sep"></span>
       ${pick('screen', 'Screen', SCREENS[state.role].map(([id, label, round]) => [id, label, round]))}

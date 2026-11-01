@@ -535,7 +535,7 @@ const DATA = (() => {
       { name: 'PO batch scheduling', docs: 6, inferred: 0, used: 5 },
     ],
     docs: [
-      { id: 't7', title: 'PDF invoices need their own folder', topic: 'Nightly vendor file copy', from: 'Inferred by your twin', used: 1, helped: '—', checked: 'Not yet', inferred: true,
+      { id: 't7', title: 'PDF invoices need their own folder', topic: 'Nightly vendor file copy', from: 'Inferred by your twin', used: 1, helped: 'Not yet', checked: 'Not yet', inferred: true,
         trail: [['Mar 12', 'video', 'A reporting job read every file in invoices/', 'Your recorded session'], ['Oct 31', 'alert', 'Your twin inferred PDFs need their own folder', 'Not confirmed by you yet'], ['', 'users', 'Maya used it once, in PROC-512', '']] },
       { id: 't1', title: 'Restart VENDSYNC from the failed step', topic: 'Vendor sync and restarts', from: 'Your session + your answer', used: 3, helped: '3 of 3', checked: 'Oct 31', trail: restartTrail },
       { id: 't3', title: 'Copybook not found when building locally', topic: 'Local COBOL builds', from: 'Your answer to a new grad', used: 12, helped: '11 of 12', checked: '3 days ago',
@@ -726,8 +726,8 @@ const DATA = (() => {
           kind: 'shot', commit: '7c2e0d4', message: 'Raise VENDMAST free space to 20%',
           shot: {
             file: 'VSAMREORG.jcl', tree: ['jcl', 'VSAMREORG.jcl', 'VENDSYNC.jcl'], treeOn: 1, hl: 13,
-            code: [[11, '  DEFINE CLUSTER (NAME(PROD.VENDMAST) -'], [12, '    INDEXED KEYS(10 0) -'], [13, '    FREESPACE(20 10) -'], [14, '    SHAREOPTIONS(2 3))']],
-            term: ['% git log -1 -- jcl/VSAMREORG.jcl', 'commit 7c2e0d4 · Jul 2017 · Priya R.', '    Raise VENDMAST free space to 20%'],
+            code: [[11, 'DEFINE CLUSTER -'], [12, '  NAME(PROD.VENDMAST) -'], [13, '  FREESPACE(20 10) -'], [14, '  INDEXED KEYS(10 0))']],
+            term: ['% git log -1 VSAMREORG.jcl', '7c2e0d4 · Jul 2017 · Priya R.', '  Raise free space to 20%'],
           },
         },
         question: 'You opened VSAMREORG today. In 2017 you raised its free space. What was that for?',

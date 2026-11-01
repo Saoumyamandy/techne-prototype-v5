@@ -28,7 +28,7 @@ Previous rounds:
 
 ## What to try
 
-Use the prototype bar at the top to switch between **New grad**, **Senior** and **Mobile**, pick a screen, and compare variants. Press H to hide the bar.
+Use the Controls bar at the top to switch between **New grad**, **Senior** and **Mobile**, pick a screen, and compare variants. Press H to hide the bar.
 
 **New grad**
 - **Home:** Continue the ticket, Ask Senior Techne, recent files, and this week's learning path with progress.
@@ -54,12 +54,18 @@ Use the prototype bar at the top to switch between **New grad**, **Senior** and 
 - **Company repository:** every approved doc and its history.
 - **Your IDE** (the VENDSYNC.jcl tab): a recording indicator and Pause, a session timeline with the key moments Techne flagged (star a terminal line to see why), Techne's question card with "Why Techne is asking", and the end-of-day interview. Answering drafts a doc into Your twin's drafts.
 - **How Techne's questions are built** (`#persona`): what the new grad persona is built from, what it deliberately doesn't know, what's never used, and how its quality is measured. Every Synthetic badge links here.
-- **Hot spots:** where new grads' questions cluster, and which interviews Techne has planned.
+- **Hot spots:** where new grads' questions cluster, which interviews Techne has planned, and the past work behind a cluster ("Traces to your change · Mar 2019").
+- **Your past work** (`#past`, on Hot spots): a senior's twin only learns from work done after Techne was switched on, so Techne fills in the years before, a little at a time, starting with what new grads need. It finds old work worth explaining from three signals:
+  - *Today's work touches old work:* Priya opens a file she last changed years ago, with no doc behind it.
+  - *New grads ask about it:* a question cluster traces back to code only Priya has changed.
+  - *Old artifacts go unchecked:* a runbook or incident review she wrote hasn't been checked in years.
+
+  Each item opens as a preview tab with what Techne found (the commit, the code, the runbook), why it's asking, its question as a synthetic new grad, and its guess. Priya confirms it, adds one sentence, marks it obsolete, or says who else knows. A confirmed item drafts a doc for her twin and fills one more system on the coverage strip (14 of 31 since 2015). It's private to her and never shown to her manager.
 - **Your year:** the senior's own report, with *Your impact* (contribution heatmap and expertise).
 
 **Mobile** (phone frame): senior drafts on the go, Techne's questions with quick replies and voice, a new grad asking Senior Techne in Slack, and the new grad's twin.
 
-Short links: `#senior-ide`, `#senior`, `#senior-twin`, `#restart`, `#seen`, `#filecopy`, `#persona`, `#onboarding`, `#archive`, `#queue`, `#hotspots`, `#mobile`.
+Short links: `#senior-ide`, `#senior`, `#senior-twin`, `#past`, `#restart`, `#seen`, `#filecopy`, `#persona`, `#onboarding`, `#archive`, `#queue`, `#hotspots`, `#mobile`.
 
 Answer fields on Techne's questions type out a prepared answer whatever keys you press. Replay resets every screen.
 

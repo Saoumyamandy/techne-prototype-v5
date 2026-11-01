@@ -832,10 +832,10 @@ const Grad = (() => {
       case 'ask': ask(); break;
       case 'senior': toggleSenior(); break;
       case 'bell': App.toast(seniorOn ? 'No new answers. Senior Techne will tell you when a senior replies.' : 'Senior Techne is off, so it won’t notify you.'); break;
-      case 'collapse-tree': App.toast('Only this ticket’s folders are in the prototype.'); break;
+      case 'collapse-tree': App.toast('Only this ticket’s folders are shown here.'); break;
       case 'startup': App.toast('Home opens when you start Techne. Turn it off in Settings.'); break;
       case 'document': App.set({ screen: 'save' }); break;
-      case 'soon': App.toast('Not in this prototype. Continue the ticket or ask Senior Techne.'); break;
+      case 'soon': App.toast('That isn’t available yet. Continue the ticket or ask Senior Techne.'); break;
       default: GradPages.shellAct?.(act);
     }
   }

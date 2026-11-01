@@ -746,7 +746,7 @@ const Senior = (() => {
       case 'search': Shell.setView('senior', 'repo', true); setTimeout(() => $('#side-q')?.focus(), 50); break;
       case 'credits': App.toast(`${credits.toLocaleString('en-US')} credits. You earn them when your reviews and docs help new grads.`); break;
       case 'bell': App.toast(`${todoDrafts().length} drafts and ${openQs().length} open questions need you.`); break;
-      case 'soon': App.toast('Not in this prototype.'); break;
+      case 'soon': App.toast('That isn’t available yet.'); break;
       case 'startup': App.toast('Home opens when you start Techne. Turn it off in Settings.'); break;
       case 'moments-list': SeniorPages.toggleMoments(); Shell.refresh('senior', ['files']); break;
       case 'moment': SeniorPages.openMoment(+el.dataset.i); break;

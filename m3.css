@@ -245,7 +245,9 @@ body.bar-hidden .pbar { display: none; }
 .m3-shot-tree .f { padding-left: 16px; }
 .m3-shot-tree .on { background: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); }
 .m3-shot-right { min-width: 0; display: flex; flex-direction: column; }
-.m3-shot-code { padding: 8px 0; font: 400 12px/20px var(--m3-mono); white-space: pre; overflow: hidden; }
+.m3-shot-code { padding: 8px 0; font: 400 12px/20px var(--m3-mono); white-space: pre; overflow-x: auto; scrollbar-width: thin; }
+/* in a review tab's narrow column the file tree gives the code more room */
+.m3-sheet-col .m3-shot-body { grid-template-columns: 104px minmax(0, 1fr); }
 .m3-shot-code span { display: inline-block; width: 32px; padding-right: 8px; text-align: right; color: var(--md-sys-color-outline); }
 .m3-shot-code .hl { background: color-mix(in srgb, var(--md-sys-color-error) 12%, transparent); }
 .m3-shot-term { padding: 8px 12px; background: var(--md-sys-color-inverse-surface); color: var(--md-sys-color-inverse-on-surface); font: 400 12px/18px var(--m3-mono); white-space: pre-wrap; }

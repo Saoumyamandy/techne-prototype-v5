@@ -17,6 +17,8 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 - Side bar views follow the code you have open, as VS Code's do: the code stays in the editor. Your twin shows what's saved about the open file and who knows it, with "Document this solution" (the save dialog) at the bottom. Learning shows the path for the issue you're on. With no code open (Home, other pages) both show everything.
 - Each of those views ends with a clear button to open the full page.
 - The senior's views follow the open code too: with VENDSYNC.jcl open, Drafts, Queue, Repository and Hot spots put what's about this job first, in an M3 outlined card ("About the job you have open"), then the rest. Drafts ends with "Teach your twin" (the end-of-day interview).
+- Your past work (senior Hot spots, `#past`): Techne finds old work from three signals (opened today, new grads asked, not checked in years), guesses, and Priya confirms or adds one sentence. Data in `DATA.pastWork`; state, coverage and the card (a preview tab, kind `past`) in `senior.js`. A confirmed item drafts a doc, fills coverage by one, and turns the traced hot spot inferred, then covered once approved.
+- Copy: nothing on screen says demo, prototype or round, and no em dashes.
 - These context cards are M3 outlined cards (white, thin outline, blue only on headings and icons). The user found a blue-filled card too loud.
 - Colour: Google blue (#0B57D0) on white. No purple.
 
