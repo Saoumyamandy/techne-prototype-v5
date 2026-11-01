@@ -9,7 +9,7 @@ const Senior = (() => {
 
   let body, sheetWrap;
   let screen = 'home', credits = 1240, flagged = null, interviewDone = false;
-  let drafts, queue, docs;
+  let drafts, queue, docs, past, pastKnown, pastTab = 'todo';
   let draftTab = 'todo', queueTab = 'todo', queueFilter = 'all';
   let repoTopic = 'All', repoQuery = '', repoSort = 'used', repoSel = null;
 
@@ -35,6 +35,8 @@ const Senior = (() => {
     if (interviewDone) drafts.unshift({ ...DATA.interviewDraft, status: 'todo', fresh: true });
     queue = DATA.queue.map(q => ({ ...q, status: 'todo' }));
     docs = DATA.docs.map(d => ({ ...d }));
+    past = DATA.pastWork.items.map(i => ({ ...i, status: 'todo' }));
+    pastKnown = {}; pastTab = 'todo';
     credits = 1240;
     draftTab = 'todo'; queueTab = 'todo'; queueFilter = 'all'; sideQuery = '';
     repoTopic = 'All'; repoQuery = ''; repoSel = null;
@@ -484,6 +486,17 @@ const Senior = (() => {
     updateCounts();
   }
 
+  // ═════════ YOUR PAST WORK ═════════
+  const pastItem = id => past?.find(x => x.id === id);
+  // A hot spot that traces to past work: inferred once Priya confirms it, covered once she approves the draft
+  function hotCover(h) {
+    if (!h.traces || !past) return { cover: h.cover, twin: h.twin };
+    const it = pastItem(h.traces), d = drafts.find(x => x.pastId === h.traces);
+    if (d?.status === 'done' && d.result === 'approved') return { cover: 'covered', twin: 'priya' };
+    if (it?.status === 'done' && it.result === 'confirmed') return { cover: 'inferred', twin: 'priya' };
+    return { cover: h.cover, twin: h.twin };
+  }
+
   // ═════════ WEB IDE CHROME: side bar views, status bar ═════════
   const TREE = [['jcl', 1, 1], ['VENDSYNC.jcl', 0, 2, true], ['POBATCH.jcl', 0, 2], ['VSAMREORG.jcl', 0, 2], ['runbooks', 1, 1], ['Vendor sync recovery.md', 0, 2]];
   const openPage = (scr, l) => `<md-icon-button data-wi-screen="${scr}" aria-label="${l}" title="${l}"><md-icon>open_in_new</md-icon></md-icon-button>`;
@@ -680,5 +693,5 @@ const Senior = (() => {
   }
 
   function hardReset() { interviewDone = false; restartFresh = false; flagged = null; }
-  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap };
+  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem };
 })();

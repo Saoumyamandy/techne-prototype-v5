@@ -180,9 +180,9 @@ const SeniorPages = (() => {
     return `<i class="${c}"></i>`;
   }).join('');
   function hotHTML() {
-    const H = DATA.hotspots;
+    const H = DATA.hotspots.map(h => ({ ...h, ...Senior.hotCover(h) }));
     return `<div class="m3-page">
-      <p class="m3-intro md-typescale-body-large">Where new grads’ questions cluster this month. Gaps shape what Techne asks seniors next.</p>
+      <p class="m3-intro md-typescale-body-large">Where new grads’ questions cluster this month, and the past work behind them. Gaps shape what Techne asks seniors next.</p>
       <div class="m3-stats three">
         ${stat(H.reduce((a, h) => a + h.n, 0), 'Questions this month', 'forum')}
         ${stat(`${H.filter(h => h.cover === 'covered').length} <span class="md-typescale-body-medium m3-muted">of ${H.length}</span>`, 'Covered by a twin', 'verified')}
@@ -194,12 +194,12 @@ const SeniorPages = (() => {
             <div class="m3-key md-typescale-body-small"><span><i class="ok"></i>Covered</span><span><i class="warn"></i>Partly covered or inferred</span><span><i class="bad"></i>Gap</span></div></div>
           <table class="m3-table md-typescale-body-medium">
             <thead class="md-typescale-title-small"><tr><th>Topic</th><th>Questions this month</th><th>Trend</th><th>Coverage</th><th>Next</th></tr></thead>
-            <tbody>${H.map(h => { const [kind, ic, lab] = COVER[h.cover]; return `<tr>
-              <td class="md-typescale-title-small">${h.topic}</td>
+            <tbody>${H.map(h => { const [kind, ic, lab] = COVER[h.cover], it = h.traces && Senior.pastItem(h.traces); return `<tr>
+              <td><span class="md-typescale-title-small">${h.topic}</span>${it ? `<span class="m3-trace md-typescale-body-small">${sym('history')}Traces to your change · ${it.lastChanged}</span>` : ''}</td>
               <td><div class="m3-segrow"><span class="m3-segs">${segs(h)}</span><span>${h.n}</span></div></td>
               <td class="m3-trend ${h.trend > 0 ? 'up' : h.trend < 0 ? 'down' : ''}">${h.trend === null ? 'New' : h.trend === 0 ? 'Flat' : `<span class="m3-meta-i">${sym(h.trend > 0 ? 'trending_up' : 'trending_down')}${Math.abs(h.trend)}%</span>`}</td>
               <td>${status(kind, `${lab}${h.twin ? ` · ${App.twinName(h.twin)}` : ''}`, ic, true)}</td>
-              <td>${h.cluster ? `<md-text-button data-sact="cluster" data-cl="${h.cluster}" trailing-icon>${h.next}${sym('arrow_forward', 'icon')}</md-text-button>` : `<span class="m3-muted">${h.next || '—'}</span>`}</td></tr>`; }).join('')}</tbody>
+              <td><div class="m3-next">${it && it.status === 'todo' ? `<md-text-button data-act="open-past" data-id="${it.id}">${sym('add_comment', 'icon')}Add context</md-text-button>` : ''}${h.cluster ? `<md-text-button data-sact="cluster" data-cl="${h.cluster}" trailing-icon>${h.next}${sym('arrow_forward', 'icon')}</md-text-button>` : h.next ? `<span class="m3-muted">${h.next}</span>` : ''}</div></td></tr>`; }).join('')}</tbody>
           </table>
         </section>
         <section class="m3-card outlined">
