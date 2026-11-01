@@ -41,6 +41,7 @@ const App = (() => {
     filecopy: { role: 'grad', screen: 'ide', sc: 'filecopy' }, restart: { role: 'grad', screen: 'ide', sc: 'restart' },
     seen: { role: 'grad', screen: 'ide', sc: 'checked', seen: '1' },
     persona: { role: 'senior', screen: 'persona' },
+    past: { role: 'senior', screen: 'hot' },
     'senior-twin': { role: 'senior', screen: 'twin' },
     inline: { role: 'grad', screen: 'ide', sc: 'checked', wt: 'inline' }, mobile: { role: 'mobile', screen: 'approvals' },
   };
@@ -49,6 +50,8 @@ const App = (() => {
     if (t === 'dark' || t === 'light') return t;
     return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
   }
+  // after a short link renders, some land on a section of the page
+  const LAND = { past: () => document.querySelector('#past-work')?.scrollIntoView({ block: 'start' }) };
   function readHash() {
     const h = location.hash.slice(1);
     if (TOKENS[h]) Object.assign(state, TOKENS[h]);
@@ -160,8 +163,10 @@ const App = (() => {
     if ((state.role === 'senior' && state.screen === 'ide') || (state.role === 'grad' && state.sc === 'filecopy')) {
       try { localStorage.removeItem('techne-sent-priya'); } catch { /* blocked */ }
     }
+    const landing = location.hash.slice(1);
     writeHash();
     apply();
+    LAND[landing]?.();
     // follow the viewer's own theme switch
     new MutationObserver(() => {
       const t = document.documentElement.dataset.theme;
@@ -177,7 +182,7 @@ const App = (() => {
     // a short link typed into an open tab works like a fresh visit to it
     addEventListener('hashchange', () => {
       const h = location.hash.slice(1);
-      if (TOKENS[h]) set({ seen: '0', sc: 'checked', ...TOKENS[h] });
+      if (TOKENS[h]) { set({ seen: '0', sc: 'checked', ...TOKENS[h] }); LAND[h]?.(); }
     });
     document.addEventListener('click', e => {
       if (!e.target.closest('.synth, .m3-synth')) return;

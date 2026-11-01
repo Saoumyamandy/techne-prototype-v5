@@ -78,6 +78,8 @@ const SeniorPages = (() => {
       <li><button data-wi-act="moments-list" aria-expanded="${momentsOpen}"><md-ripple></md-ripple><md-focus-ring></md-focus-ring>${sym('star')}<span>${I.moments.length} key moments found</span>${sym(momentsOpen ? 'expand_less' : 'expand_more')}</button></li>
       ${momentsOpen ? `<li class="wi-km-list">${I.moments.map((m, i) => `<button data-wi-act="moment" data-i="${i}"><md-ripple></md-ripple><md-focus-ring></md-focus-ring><span class="md-typescale-label-medium m3-muted">${m.time}</span>${m.label}</button>`).join('')}</li>` : ''}
       <li>${sym('auto_awesome')}<span>3 questions from Techne</span></li>
+      ${(() => { const t = DATA.pastWork.items.filter(i => i.signal === 'today' && Senior.pastItem(i.id)?.status === 'todo');
+        return t.length ? `<li><button data-wi-act="past" data-id="${t[0].id}"><md-ripple></md-ripple><md-focus-ring></md-focus-ring>${sym('history')}<span>${t.length} past change${t.length > 1 ? 's' : ''} to explain</span>${sym('chevron_right')}</button></li>` : ''; })()}
     </ul>`;
   }
   // a key moment picked in the side bar opens on the session timeline
@@ -280,7 +282,11 @@ const SeniorPages = (() => {
           </section>
           <section class="m3-card outlined">
             <div class="m3-card-head"><h2 class="md-typescale-title-large">Gaps</h2><p class="md-typescale-body-medium m3-muted">What new grads ask that your twin can’t answer yet</p></div>
-            <md-list class="m3-dense">${K.gaps.map(([g, n]) => `<md-list-item>${sym('help', 'start')}<div slot="headline">${g}</div><div slot="supporting-text">${n}</div></md-list-item>`).join('')}</md-list>
+            <md-list class="m3-dense">${K.gaps.map(([g, n, pid]) => {
+              const it = pid && Senior.pastItem(pid);
+              return `<md-list-item>${sym(it ? 'history' : 'help', 'start')}<div slot="headline">${g}</div><div slot="supporting-text">${it ? `${n} · Techne found your ${it.year} change.` : n}</div>
+                ${it ? it.status === 'todo' ? `<md-text-button slot="end" data-act="open-past" data-id="${pid}">Add context</md-text-button>` : `<span slot="end">${status('ok', 'Added from your past work', 'history', true)}</span>` : ''}</md-list-item>`;
+            }).join('')}</md-list>
             <p class="m3-subhead md-typescale-body-medium">Techne will ask you about the first one on Friday, as a new grad.</p>
             <div class="m3-card-actions">${twinTest ? `<div class="m3-test">
                 <div class="m3-bubble ask md-typescale-body-medium">${K.test.q}</div>

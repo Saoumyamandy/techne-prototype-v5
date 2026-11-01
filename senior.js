@@ -611,11 +611,13 @@ const Senior = (() => {
       drafts.unshift(d);
     }
     rerender();
+    Shell.refresh('senior', ['hot', 'files']);
     App.undoToast(result === 'confirmed' ? 'Added to your twin. The draft is first in Your twin’s drafts.'
       : result === 'obsolete' ? 'Marked obsolete. Techne won’t ask about it again.' : `Sent to ${to}’s list. Techne will ask them instead.`, () => {
       Object.assign(i, { status: 'todo', result: undefined, to: undefined, given: undefined });
       if (d) drafts = drafts.filter(x => x !== d);
       rerender();
+      Shell.refresh('senior', ['hot', 'files']);
     });
   }
 
