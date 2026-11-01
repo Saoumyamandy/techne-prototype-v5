@@ -48,6 +48,7 @@ Use the prototype bar at the top to switch between **New grad**, **Senior** and 
 **Senior**
 - **Home:** *Needs you* mixes your twin's drafts and open questions, each tagged, newest first. Drafts are only yours and never locked. Every item opens for review as a preview tab, and approving can be undone.
 - **Rail:** Explorer (files, plus *Your twin today*: sessions, key moments and Techne's questions), Drafts and Queue (lists with To do and Done, badges for what's open), Repository (search and open docs), Hot spots. The avatar menu holds Your twin, Your year and How Techne asks.
+- **Side bar follows your code:** with VENDSYNC.jcl open, Drafts, Queue, Repository and Hot spots show what's about this job first, then everything else. Drafts has *Teach your twin*, which opens the end-of-day interview.
 - **Your twin** (`#senior-twin`): everything Senior Techne answers from Priya's work. It shows the topics it knows (verified or inferred), every doc with its trail back to where it came from and how often it helped, what new grads asked it this week, and its gaps. Priya can pause learning, confirm an inferred doc, keep a doc private or retire it, and test her twin.
 - **Question Queue:** shared by every senior. You claim an item before answering it, and claimed items are locked for everyone else.
 - **Company repository:** every approved doc and its history.

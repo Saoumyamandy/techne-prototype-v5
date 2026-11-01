@@ -16,6 +16,8 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 - Need help opens the Inline walkthrough by default. The pin on an inline card moves the walkthrough into the right panel at the same step; unpin puts it back on the code. A follow-up typed on the inline card pins it and continues in the panel.
 - Side bar views follow the code you have open, as VS Code's do: the code stays in the editor. Your twin shows what's saved about the open file and who knows it, with "Document this solution" (the save dialog) at the bottom. Learning shows the path for the issue you're on. With no code open (Home, other pages) both show everything.
 - Each of those views ends with a clear button to open the full page.
+- The senior's views follow the open code too: with VENDSYNC.jcl open, Drafts, Queue, Repository and Hot spots put what's about this job first, in an M3 outlined card ("About the job you have open"), then the rest. Drafts ends with "Teach your twin" (the end-of-day interview).
+- These context cards are M3 outlined cards (white, thin outline, blue only on headings and icons). The user found a blue-filled card too loud.
 - Colour: Google blue (#0B57D0) on white. No purple.
 
 ## Setup

@@ -224,7 +224,7 @@ const GradPages = (() => {
       title: 'Learning path', acts: openPage('learn', 'Open the learning path'), foot,
       body: `<section class="wi-issue" aria-label="${I.because}">
           <div class="wi-issue-h md-typescale-label-large">${I.because}</div>
-          <div class="wi-issue-what">${sym(Grad.where().error ? 'error' : 'confirmation_number')}<div><div class="md-typescale-title-small">${I.what}</div><div class="wi-ctx-file">${Grad.where().at}</div></div></div>
+          <div class="wi-issue-what ${Grad.where().error ? 'err' : ''}">${sym(Grad.where().error ? 'error' : 'confirmation_number')}<div><div class="md-typescale-title-small">${I.what}</div><div class="wi-ctx-file">${Grad.where().at}</div></div></div>
           <div class="wi-issue-sec md-typescale-label-medium">Skill this needs</div>
           <div class="wi-skill"><div class="wi-skill-row md-typescale-body-medium"><span>${sk}</span><b>${me}%</b></div>
             <div class="wi-bars"><i class="back" style="width:${sr}%"></i><i class="front" style="width:${me}%"></i></div>

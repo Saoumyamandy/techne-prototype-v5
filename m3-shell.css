@@ -61,7 +61,8 @@
 .wi-issue { margin: 0 4px 12px; padding: 12px 4px 4px; border: 1px solid var(--md-sys-color-outline-variant); border-radius: var(--m3-shape-m); background: var(--md-sys-color-surface); color: var(--md-sys-color-on-surface); }
 .wi-issue-h { padding: 0 8px 4px; color: var(--md-sys-color-primary); }
 .wi-issue-what { display: flex; gap: 10px; padding: 4px 8px 12px; --md-icon-size: 20px; }
-.wi-issue-what > md-icon { flex: none; color: var(--md-sys-color-error); }
+.wi-issue-what > md-icon { flex: none; color: var(--md-sys-color-primary); }
+.wi-issue-what.err > md-icon { color: var(--md-sys-color-error); }
 .wi-issue-what .wi-ctx-file { color: var(--md-sys-color-on-surface-variant); font-weight: 400; }
 .wi-issue-sec { margin: 0 8px; padding: 12px 0 4px; border-top: 1px solid var(--md-sys-color-outline-variant); color: var(--md-sys-color-on-surface-variant); }
 .wi-issue .wi-skill { padding: 0 8px 12px; }

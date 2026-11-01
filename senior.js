@@ -491,11 +491,22 @@ const Senior = (() => {
   const emptySide = t => `<div class="wi-note md-typescale-body-medium">${sym('task_alt')}<span>${t}</span></div>`;
   const COVER_SIDE = { covered: ['verified', 'Covered'], partial: ['warning', 'Partly covered'], inferred: ['warning', 'Inferred'], gap: ['help', 'Gap'] };
   let sideQuery = '';
+  // With VENDSYNC.jcl open, each view puts what's about this job first, in an outlined card, as the new grad's do
+  const JOB = { file: 'VENDSYNC.jcl', what: 'Nightly vendor sync · steps 1–2 commit to VENDMAST', re: /vendsync|vendmast|vendor sync|restart|rerun|nightly vendor/i };
+  const inJob = () => screen === 'ide';
+  const jobCard = (sec, inner) => `<section class="wi-issue" aria-label="About ${JOB.file}">
+      <div class="wi-issue-h md-typescale-label-large">About the job you have open</div>
+      <div class="wi-issue-what">${sym('description')}<div><div class="wi-ctx-file">${JOB.file}</div><div class="md-typescale-body-small m3-muted">${JOB.what}</div></div></div>
+      <div class="wi-issue-sec md-typescale-label-medium">${sec}</div>${inner}</section>`;
+  const jobNone = t => `<div class="wi-note md-typescale-body-small">${sym('info')}<span>${t}</span></div>`;
+  const docRow = d => `<md-list-item type="button" class="${screen === 'repo' && repoSel === d.id && sheetWrap.hidden ? 'on' : ''}" data-wi-act="doc" data-id="${d.id}"><md-icon slot="start">${d.stale ? 'schedule' : 'description'}</md-icon><div slot="headline">${d.title}</div><div slot="supporting-text">${d.by === 'Team' ? 'Team' : `${d.by}’s twin`} · used ${d.used}×</div></md-list-item>`;
+  const byTopic = list => [...new Set(list.map(d => d.topic))].map(t => `<div class="wi-sec md-typescale-label-large">${t}</div><md-list>${list.filter(d => d.topic === t).map(docRow).join('')}</md-list>`).join('');
   const docsSide = () => {
     const list = docs.filter(d => !sideQuery || (d.title + d.summary).toLowerCase().includes(sideQuery.toLowerCase()));
     if (!list.length) return emptySide('No docs match.');
-    return [...new Set(list.map(d => d.topic))].map(t => `<div class="wi-sec md-typescale-label-large">${t}</div><md-list>${list.filter(d => d.topic === t).map(d =>
-      `<md-list-item type="button" class="${screen === 'repo' && repoSel === d.id && sheetWrap.hidden ? 'on' : ''}" data-wi-act="doc" data-id="${d.id}"><md-icon slot="start">${d.stale ? 'schedule' : 'description'}</md-icon><div slot="headline">${d.title}</div><div slot="supporting-text">${d.by === 'Team' ? 'Team' : `${d.by}’s twin`} · used ${d.used}×</div></md-list-item>`).join('')}</md-list>`).join('');
+    if (sideQuery || !inJob()) return byTopic(list);
+    const mine = list.filter(d => JOB.re.test(d.title));
+    return `${jobCard('Docs about this job', `<md-list>${mine.map(docRow).join('')}</md-list>`)}<div class="wi-rest md-typescale-label-large">All docs</div>${byTopic(list.filter(d => !mine.includes(d)))}`;
   };
   function sideView(v) {
     if (!drafts) return { title: '', body: '' };
@@ -507,34 +518,60 @@ const Senior = (() => {
     };
     if (v === 'drafts') {
       const list = drafts.filter(d => d.status === draftTab), nd = todoDrafts().length;
+      const row = d => { const [ic, lab] = DRAFT_KIND[d.kind]; return `<md-list-item type="button" class="${d.status === 'done' ? 'done' : ''} ${reviewing('draft', d.id) ? 'on' : ''}" data-wi-act="open-draft" data-id="${d.id}"><md-icon slot="start">${ic}</md-icon><div slot="headline">${d.title}</div><div slot="supporting-text">${d.status === 'done' ? RESULT_M3[d.result][1] : `${d.fresh ? 'New · ' : ''}${lab(d)} · ${d.ago}`}</div></md-list-item>`; };
+      const empty = emptySide(draftTab === 'todo' ? 'Nothing to review. Your twin is up to date.' : 'Nothing done yet today.');
+      const head = `${seg('dtab', draftTab, [['todo', `To do · ${nd}`], ['done', `Done · ${drafts.length - nd}`]])}`;
+      if (!inJob()) return {
+        title: 'Your twin’s drafts',
+        body: `${head}<div class="wi-note md-typescale-body-small">${sym('lock')}<span>Drafted from your work. Only you can approve them.</span></div>
+          ${list.length ? `<md-list>${list.map(row).join('')}</md-list>` : empty}`,
+      };
+      const mine = list.filter(d => JOB.re.test(d.title)), rest = list.filter(d => !mine.includes(d));
       return {
         title: 'Your twin’s drafts',
-        body: `${seg('dtab', draftTab, [['todo', `To do · ${nd}`], ['done', `Done · ${drafts.length - nd}`]])}
-          <div class="wi-note md-typescale-body-small">${sym('lock')}<span>Drafted from your work. Only you can approve them.</span></div>
-          ${list.length ? `<md-list>${list.map(d => { const [ic, lab] = DRAFT_KIND[d.kind]; return `<md-list-item type="button" class="${d.status === 'done' ? 'done' : ''} ${reviewing('draft', d.id) ? 'on' : ''}" data-wi-act="open-draft" data-id="${d.id}"><md-icon slot="start">${ic}</md-icon><div slot="headline">${d.title}</div><div slot="supporting-text">${d.status === 'done' ? RESULT_M3[d.result][1] : `${d.fresh ? 'New · ' : ''}${lab(d)} · ${d.ago}`}</div></md-list-item>`; }).join('')}</md-list>`
-            : emptySide(draftTab === 'todo' ? 'Nothing to review. Your twin is up to date.' : 'Nothing done yet today.')}`,
+        body: `${head}${jobCard('Drafts from this job', mine.length ? `<md-list>${mine.map(row).join('')}</md-list>` : jobNone('Nothing drafted from this job yet.'))}
+          ${rest.length ? `<div class="wi-rest md-typescale-label-large">Other drafts</div><md-list>${rest.map(row).join('')}</md-list>` : ''}`,
+        foot: `<md-filled-button data-wi-act="teach">${sym('diversity_3', 'icon')}Teach your twin</md-filled-button>`,
       };
     }
     if (v === 'queue') {
       const todo = queue.filter(q => q.status === 'todo'), list = queue.filter(q => q.status === queueTab).sort((a, b) => (b.id === flagged) - (a.id === flagged));
+      const row = q => {
+        const theirs = q.claimedBy && q.claimedBy !== 'you';
+        const sub = q.status === 'done' ? RESULT_M3[q.result][1] : `${q.id === flagged ? 'New · ' : ''}${q.claimedBy ? (theirs ? `Claimed by ${q.claimedBy}` : 'Claimed by you') : QUEUE_KIND[q.kind][1]} · ${q.who.split(' ')[0]}`;
+        return `<md-list-item type="button" class="${q.status === 'done' ? 'done' : ''} ${reviewing('queue', q.id) ? 'on' : ''}" ${theirs ? 'disabled' : `data-wi-act="open-q" data-id="${q.id}"`}><md-icon slot="start">${theirs ? 'lock' : QUEUE_KIND[q.kind][0]}</md-icon><div slot="headline">${q.title}</div><div slot="supporting-text">${sub}</div></md-list-item>`;
+      };
+      const head = seg('qtab', queueTab, [['todo', `To do · ${todo.length}`], ['done', `Done · ${queue.length - todo.length}`]]);
+      const foot = `<md-filled-tonal-button data-wi-screen="queue">${sym('inbox', 'icon')}Open the full queue</md-filled-tonal-button>`;
+      if (!inJob()) return {
+        title: 'Question Queue', acts: openPage('queue', 'Open the full queue'), foot,
+        body: `${head}${list.length ? `<md-list>${list.map(row).join('')}</md-list>` : emptySide(queueTab === 'todo' ? 'Queue is clear.' : 'Nothing done yet.')}`,
+      };
+      const mine = list.filter(q => JOB.re.test(q.title)), rest = list.filter(q => !mine.includes(q));
       return {
-        title: 'Question Queue', acts: openPage('queue', 'Open the full queue'),
-        body: `${seg('qtab', queueTab, [['todo', `To do · ${todo.length}`], ['done', `Done · ${queue.length - todo.length}`]])}
-          ${list.length ? `<md-list>${list.map(q => {
-            const theirs = q.claimedBy && q.claimedBy !== 'you';
-            const sub = q.status === 'done' ? RESULT_M3[q.result][1] : `${q.id === flagged ? 'New · ' : ''}${q.claimedBy ? (theirs ? `Claimed by ${q.claimedBy}` : 'Claimed by you') : QUEUE_KIND[q.kind][1]} · ${q.who.split(' ')[0]}`;
-            return `<md-list-item type="button" class="${q.status === 'done' ? 'done' : ''} ${reviewing('queue', q.id) ? 'on' : ''}" ${theirs ? 'disabled' : `data-wi-act="open-q" data-id="${q.id}"`}><md-icon slot="start">${theirs ? 'lock' : QUEUE_KIND[q.kind][0]}</md-icon><div slot="headline">${q.title}</div><div slot="supporting-text">${sub}</div></md-list-item>`;
-          }).join('')}</md-list>` : emptySide(queueTab === 'todo' ? 'Queue is clear.' : 'Nothing done yet.')}`,
+        title: 'Question Queue', acts: openPage('queue', 'Open the full queue'), foot,
+        body: `${head}${jobCard('Questions your know-how here could answer', mine.length ? `<md-list>${mine.map(row).join('')}</md-list>` : jobNone('No open questions about this job.'))}
+          ${rest.length ? `<div class="wi-rest md-typescale-label-large">Other questions</div><md-list>${rest.map(row).join('')}</md-list>` : ''}`,
       };
     }
     if (v === 'repo') return {
       title: 'Company repository', acts: openPage('repo', 'Open the repository'),
+      foot: `<md-filled-tonal-button data-wi-screen="repo">${sym('library_books', 'icon')}Open the repository</md-filled-tonal-button>`,
       body: `<md-outlined-text-field id="side-q" placeholder="Search docs" aria-label="Search the company repository" value="${sideQuery.replace(/"/g, '&quot;')}"><md-icon slot="leading-icon">search</md-icon></md-outlined-text-field><div id="side-docs">${docsSide()}</div>`,
     };
-    return {
-      title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'),
+    const hotRow = h => `<md-list-item type="button" data-wi-screen="hot"><md-icon slot="start">${COVER_SIDE[h.cover][0]}</md-icon><div slot="headline">${h.topic}</div><div slot="supporting-text">${h.n} questions · ${COVER_SIDE[h.cover][1]}${h.next ? ` · ${h.next}` : ''}</div></md-list-item>`;
+    const hotFoot = `<md-filled-tonal-button data-wi-screen="hot">${sym('local_fire_department', 'icon')}Open Hot spots</md-filled-tonal-button>`;
+    const mineHot = inJob() ? DATA.hotspots.filter(h => JOB.re.test(h.topic)) : [];
+    if (!inJob()) return {
+      title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'), foot: hotFoot,
       body: `<div class="wi-note md-typescale-body-small">${sym('forum')}<span>Where new grads’ questions cluster this month.</span></div>
-        <md-list>${DATA.hotspots.map(h => `<md-list-item type="button" data-wi-screen="hot"><md-icon slot="start">${COVER_SIDE[h.cover][0]}</md-icon><div slot="headline">${h.topic}</div><div slot="supporting-text">${h.n} questions · ${COVER_SIDE[h.cover][1]}</div></md-list-item>`).join('')}</md-list>`,
+        <md-list>${DATA.hotspots.map(hotRow).join('')}</md-list>`,
+    };
+    return {
+      title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'), foot: hotFoot,
+      body: `${jobCard('Where new grads get stuck near this job', mineHot.length ? `<md-list>${mineHot.map(hotRow).join('')}</md-list>` : jobNone('No hot spots near this job.'))}
+        <div class="wi-rest md-typescale-label-large">Everywhere else</div>
+        <md-list>${DATA.hotspots.filter(h => !mineHot.includes(h)).map(hotRow).join('')}</md-list>`,
     };
   }
   function sideAfter(v, el) {
@@ -568,6 +605,7 @@ const Senior = (() => {
       case 'startup': App.toast('Home opens when you start Techne. Turn it off in Settings.'); break;
       case 'moments-list': SeniorPages.toggleMoments(); Shell.refresh('senior', ['files']); break;
       case 'moment': SeniorPages.openMoment(+el.dataset.i); break;
+      case 'teach': body.querySelector('[data-sact="interview"]')?.click(); break;
     }
   }
 
