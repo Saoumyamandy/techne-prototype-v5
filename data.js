@@ -514,7 +514,7 @@ const DATA = (() => {
   // What Priya's twin knows, for "What your twin knows" and "Test your twin"
   const twinKnows = {
     topics: [['Local COBOL builds', 24, 'verified'], ['Vendor sync and restarts', 18, 'verified'], ['Nightly vendor file copy', 11, 'verified'], ['VSAM and reporting exports', 9, 'verified'], ['PDF invoices', 1, 'inferred']],
-    gaps: [['Rerunning PROCINV twice in a night', '3 new grads asked'], ['Who signs off on TAXTBL changes', '2 new grads asked']],
+    gaps: [['Rerunning PROCINV twice in a night', '3 new grads asked', 'past1'], ['Who signs off on TAXTBL changes', '2 new grads asked']],
     test: {
       q: 'How do I rerun VENDSYNC after a lock timeout?',
       a: 'Restart from the failed step, never the top: steps 1 and 2 already committed, so rerunning them duplicates vendor rows. Then check the count is within 1% of yesterday’s.',
@@ -620,7 +620,7 @@ const DATA = (() => {
     { topic: 'Copybooks and COBCPY', n: 18, trend: -30, cover: 'covered', twin: 'priya', next: null },
     { topic: 'Blank or bad numeric data (S0C7)', n: 14, trend: 55, cover: 'partial', twin: 'dev', next: 'Techne interviews Dev K. · Thu', cluster: 'findfail' },
     { topic: 'VSAM files for reporting', n: 11, trend: 0, cover: 'covered', twin: 'priya', next: null },
-    { topic: 'Rerunning PROCINV', n: 9, trend: null, cover: 'gap', twin: null, next: 'Techne interviews Priya R. · Fri', cluster: 'rerun' },
+    { topic: 'Rerunning PROCINV', n: 9, trend: null, cover: 'gap', twin: null, next: 'Techne interviews Priya R. · Fri', cluster: 'rerun', traces: 'past1' },
     { topic: 'PDF invoices in the file copy', n: 6, trend: null, cover: 'inferred', twin: 'priya', next: 'Waiting on Priya R. to confirm' },
     { topic: 'TAXTBL ownership', n: 5, trend: 25, cover: 'gap', twin: null, next: 'Open in Question Queue' },
   ];
@@ -688,5 +688,79 @@ const DATA = (() => {
     },
   };
 
-  return { twins, persona, tree, fid, scenarios: { checked, unchecked, filecopy, restart }, drafts, sentDraft, interviewDraft, queue, docs, twinKnows, twinPage, seniorIde, interview, lineage, restartSteps, hotspots, interviewsPlanned, personaPage, archive, graph, learning, report };
+  // ── Your past work: old work Techne finds worth explaining, a little at a time ──
+  // Three signals: today's work touches it, new grads ask about it, or an old artifact has gone unchecked.
+  const pastWork = {
+    coverage: { known: 14, total: 31, since: 2015 },
+    years: [
+      { year: 2015, systems: 3, known: 0 }, { year: 2016, systems: 4, known: 0 }, { year: 2017, systems: 3, known: 1 },
+      { year: 2018, systems: 2, known: 1 }, { year: 2019, systems: 3, known: 1 }, { year: 2020, systems: 2, known: 1 },
+      { year: 2021, systems: 3, known: 1 }, { year: 2022, systems: 2, known: 1 }, { year: 2023, systems: 3, known: 2 },
+      { year: 2024, systems: 2, known: 2 }, { year: 2025, systems: 2, known: 2 }, { year: 2026, systems: 2, known: 2 },
+    ],
+    items: [
+      {
+        id: 'past1', system: 'PROCINV duplicate check', file: 'PROCINV.cbl', lastChanged: 'Mar 2019', year: 2019, onlyYou: true,
+        signal: 'asked', signalText: '9 new grads asked about rerunning PROCINV this month', topic: 'Procurement',
+        artifact: {
+          kind: 'diff', file: 'src/PROCINV.cbl', commit: 'a3f19c2', message: 'Add DUPCHK before posting',
+          removed: ['           PERFORM POST-INVOICE'],
+          added: ['           PERFORM DUPCHK', '           IF NOT WS-ALREADY-POSTED', '               PERFORM POST-INVOICE', '           END-IF'],
+          incident: { id: 'INC-2019-031', title: 'Invoices posted twice', lines: ['Mar 14, 2019. PROCINV was rerun after a partial failure.', '212 invoices posted twice to the ledger.', 'Fix: check POSTLOG before posting. Owner: Priya R.'] },
+        },
+        question: 'New grads keep asking if PROCINV is safe to rerun. Your 2019 change looks like the reason. Is it?',
+        guess: 'You added DUPCHK after invoices posted twice in March 2019, so a rerun skips anything already posted.',
+        answer: 'Yes. DUPCHK skips invoices already in POSTLOG, so a rerun is safe. Only clear POSTLOG if finance asks.',
+        draftTitle: 'Rerunning PROCINV safely',
+        draftSteps: [
+          ['A rerun is safe', 'DUPCHK checks POSTLOG before posting, so invoices already posted are skipped.'],
+          ['Don’t clear POSTLOG yourself', 'Only clear it if finance asks. Clearing it makes a rerun post invoices twice.'],
+          ['Why it’s there', 'Added in March 2019 after INC-2019-031, when 212 invoices posted twice.'],
+        ],
+        lineage: { cluster: 'Rerunning PROCINV', count: '9 questions this month', questions: ['Can PROCINV run twice in one night?', 'PROCINV failed halfway. Is it safe to start it again?', 'Will a rerun post invoices twice?'] },
+      },
+      {
+        id: 'past2', system: 'VSAMREORG free space', file: 'VSAMREORG.jcl', lastChanged: 'Jul 2017', year: 2017, onlyYou: true,
+        signal: 'today', signalText: 'You opened VSAMREORG.jcl today', topic: 'JCL',
+        artifact: {
+          kind: 'shot', commit: '7c2e0d4', message: 'Raise VENDMAST free space to 20%',
+          shot: {
+            file: 'VSAMREORG.jcl', tree: ['jcl', 'VSAMREORG.jcl', 'VENDSYNC.jcl'], treeOn: 1, hl: 13,
+            code: [[11, '  DEFINE CLUSTER (NAME(PROD.VENDMAST) -'], [12, '    INDEXED KEYS(10 0) -'], [13, '    FREESPACE(20 10) -'], [14, '    SHAREOPTIONS(2 3))']],
+            term: ['% git log -1 -- jcl/VSAMREORG.jcl', 'commit 7c2e0d4 · Jul 2017 · Priya R.', '    Raise VENDMAST free space to 20%'],
+          },
+        },
+        question: 'You opened VSAMREORG today. In 2017 you raised its free space. What was that for?',
+        guess: 'You raised free space so the nightly inserts don’t split VENDMAST before the 2 AM batch.',
+        answer: 'Inserts were splitting control areas and the PO batch ran late. 20 percent free space stopped it. Don’t lower it without checking the batch times.',
+        draftTitle: 'Why VENDMAST keeps 20% free space',
+        draftSteps: [
+          ['Keep FREESPACE(20 10) on VENDMAST', 'Without it, nightly inserts split control areas and the 2 AM PO batch runs late.'],
+          ['Check batch times before lowering it', 'If you change it, compare the PO batch start time for a week.'],
+          ['Why it’s there', 'Raised in July 2017, when the PO batch kept starting late.'],
+        ],
+        lineage: null,
+      },
+      {
+        id: 'past3', system: 'Year-end vendor purge runbook', file: 'runbooks/year-end-vendor-purge.md', lastChanged: 'Dec 2021', year: 2021, onlyYou: false,
+        signal: 'unchecked', signalText: 'Your runbook, not checked since Dec 2021. Year-end is in 8 weeks.', topic: 'Procurement', runbook: true,
+        artifact: {
+          kind: 'runbook', file: 'runbooks/year-end-vendor-purge.md',
+          lines: ['1. Wait for finance to finish the 1099 run.', '2. Email finance for sign-off.', '3. Run VENDPURGE with INACTIVE-SINCE set to Jan 1.'],
+        },
+        question: 'Year-end is coming. Is your 2021 purge runbook still right?',
+        guess: 'Still true: purge inactive vendors only after the 1099 run.',
+        answer: 'Still after the 1099 run, but finance now signs off in the Vendor Hub, not by email.',
+        draftTitle: 'Year-end vendor purge',
+        draftSteps: [
+          ['Purge only after the 1099 run', 'Purging first removes vendors the 1099 run still needs.'],
+          ['Get finance’s sign-off', 'Finance signs off in the Vendor Hub, not by email.'],
+          ['Run VENDPURGE', 'Set INACTIVE-SINCE to January 1 of the year that’s ending.'],
+        ],
+        lineage: null,
+      },
+    ],
+  };
+
+  return { twins, persona, tree, fid, scenarios: { checked, unchecked, filecopy, restart }, drafts, sentDraft, interviewDraft, queue, docs, twinKnows, twinPage, seniorIde, interview, lineage, restartSteps, hotspots, pastWork, interviewsPlanned, personaPage, archive, graph, learning, report };
 })();
