@@ -4,7 +4,7 @@ v5 turns v4 into one web IDE for both roles, laid out like VS Code for the Web. 
 
 ## Web IDE layout (decided with the user, 2026-11-01)
 - One layout for new grads and seniors (`shell.js`, `m3-shell.css`): top search bar, navigation rail, side bar, editor tabs, status bar. Only the rail's items change by role.
-- Rail: the Techne logo opens Home (no hamburger menu). The new grad's Ask Senior Techne is the rail FAB. Occasional pages (Your year, What Techne records, Your twin and How Techne asks for seniors) live in the avatar menu.
+- Rail: the Techne logo opens Home (no hamburger menu). The new grad's Ask Senior Techne is the rail FAB. The avatar opens Your twin, whose tabs hold Your year and What Techne records (new grad) or How Techne asks (senior).
 - Side bar: one view at a time with its own title and actions; pressing the open view again hides it. Learning path and Queue stay on the rail even though Home summarises them.
 - Every screen is an editor tab. An opened draft or question is a preview tab (italic) that the next one replaces; it fills the editor area, it isn't an overlay.
 - Status bar: the Senior Techne switch (click to turn it off), onboarding week, credits, twin recording.
