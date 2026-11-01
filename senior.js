@@ -423,7 +423,9 @@ const Senior = (() => {
       if (t !== queueTab) { queueTab = t; renderQueuePage(); }
     });
   }
-  function rerender() { if (screen === 'home') body.innerHTML = homeHTML(); else if (screen === 'queue') renderQueuePage(); updateCounts(); }
+  function rerender() { if (screen === 'home') body.innerHTML = homeHTML(); else if (screen === 'queue') renderQueuePage(); else if (screen === 'hot' || screen === 'twin') rerenderHot(); updateCounts(); }
+  // keep the scroll position when the Hot spots or Your twin page re-renders after a change
+  function rerenderHot() { if (screen !== 'hot' && screen !== 'twin') return; const y = body.scrollTop; SeniorPages.render(screen, body); body.scrollTop = y; Shell.refresh('senior', ['hot', 'files']); }
 
   function onAct(act, el) {
     const row = el.closest('.m3-drow, .m3-qrow');
@@ -459,6 +461,7 @@ const Senior = (() => {
       }
       case 'voice': App.toast(`Voice answers work on mobile. Try the Mobile tab.`); break;
       case 'to-drafts': draftTab = 'todo'; Shell.setView('senior', 'drafts', true); break;
+      case 'past-tab': pastTab = el.dataset.val; rerenderHot(); break;
       case 'top-search': shellAct('search'); break;
       case 'top-notes': App.toast(`${todoDrafts().length} drafts and ${openQs().length} open questions need you.`); break;
       case 'to-queue': App.set({ screen: 'queue' }); break;
@@ -495,6 +498,48 @@ const Senior = (() => {
     if (d?.status === 'done' && d.result === 'approved') return { cover: 'covered', twin: 'priya' };
     if (it?.status === 'done' && it.result === 'confirmed') return { cover: 'inferred', twin: 'priya' };
     return { cover: h.cover, twin: h.twin };
+  }
+
+  // Coverage of Priya's past: each confirmed item fills one system in its year
+  function coverage() {
+    const P = DATA.pastWork, added = past.filter(i => i.status === 'done' && i.result === 'confirmed');
+    return { ...P.coverage, known: P.coverage.known + added.length, years: P.years.map(y => ({ ...y, known: y.known + added.filter(i => i.year === y.year).length })) };
+  }
+  const SIGNAL = { today: ['today', () => 'Opened today'], asked: ['forum', () => 'New grads asked'], unchecked: ['schedule', i => `Not checked since ${i.year}`] };
+  function pastResult(i) {
+    if (i.result === 'obsolete') return status('info', 'Marked obsolete', 'block', true);
+    if (i.result === 'handed') return status('info', `Sent to ${i.to}`, 'forward', true);
+    const d = drafts.find(x => x.pastId === i.id);
+    return d?.status === 'done' && d.result === 'approved' ? status('ok', 'In your twin', 'verified', true) : status('ok', 'Draft in Your twin’s drafts', 'rate_review', true);
+  }
+  const pastMeta = i => `Last changed by you · ${i.lastChanged}${i.onlyYou ? ' · only you' : ''}`;
+  function pastSectionHTML() {
+    const C = coverage(), todo = past.filter(i => i.status === 'todo'), list = pastTab === 'todo' ? todo : past.filter(i => i.status !== 'todo');
+    const pageSeg = (cur, opts) => `<div class="m3-seg" role="radiogroup" aria-label="Found by Techne">${opts.map(([v, l]) => `<button role="radio" aria-checked="${cur === v}" class="${cur === v ? 'on' : ''}" data-act="past-tab" data-val="${v}"><md-ripple></md-ripple><md-focus-ring></md-focus-ring>${cur === v ? sym('check') : ''}<span>${l}</span></button>`).join('')}</div>`;
+    return `<section class="m3-card outlined m3-past" id="past-work">
+      <div class="m3-card-head row"><h2 class="md-typescale-title-large">Your past work</h2>${status('info', 'Only you see this', 'lock')}</div>
+      <div class="m3-cover">
+        <p class="md-typescale-body-large">Your twin knows <b>${C.known} of the ${C.total}</b> systems you’ve worked on since ${C.since}.</p>
+        <div class="m3-years" role="img" aria-label="Systems your twin knows, by year">${C.years.map(y => `<div class="m3-year" title="${y.year}: ${y.known} of ${y.systems} systems"><span class="m3-ybar"><i style="height:${Math.round(y.known / y.systems * 100)}%"></i></span><span class="md-typescale-label-small">${y.year}</span></div>`).join('')}</div>
+        <p class="m3-cap md-typescale-body-small">${sym('history')}Techne fills this in a few minutes at a time. You never start from a blank page.</p>
+      </div>
+      <div class="m3-past-h"><h3 class="md-typescale-title-medium">Found by Techne</h3>${pageSeg(pastTab, [['todo', `To do · ${todo.length}`], ['done', `Done · ${past.length - todo.length}`]])}</div>
+      ${list.length ? `<md-list class="m3-plist">${list.map((i, k) => `${k ? '<md-divider></md-divider>' : ''}<md-list-item class="m3-prow" data-id="${i.id}">
+          <span slot="start" class="m3-lead k-past">${sym(SIGNAL[i.signal][0])}</span>
+          <div slot="headline">${i.system}<span class="m3-pfile">${i.file}</span></div>
+          <div slot="supporting-text" class="m3-meta">${status('info', SIGNAL[i.signal][1](i), SIGNAL[i.signal][0], true)}<span>${pastMeta(i)}</span></div>
+          <div slot="end" class="m3-row-acts">${i.status === 'todo' ? `<md-filled-button data-act="open-past" data-id="${i.id}">Add context</md-filled-button>` : pastResult(i)}</div>
+        </md-list-item>`).join('')}</md-list>`
+        : `<div class="m3-empty md-typescale-body-medium">${sym('task_alt')}${pastTab === 'todo' ? 'Nothing to explain right now. Techne finds more as it learns your work.' : 'Nothing done yet.'}</div>`}
+      <p class="m3-cap m3-past-foot md-typescale-body-small">${sym('lock')}Skip anything. Nothing here is shared until you approve it, and it’s never shown to your manager.</p>
+    </section>`;
+  }
+  // the same list in the Hot spots side bar
+  function pastSide() {
+    const todo = past.filter(i => i.status === 'todo');
+    return `<div class="wi-rest md-typescale-label-large">Your past work · ${todo.length}</div>
+      ${todo.length ? `<md-list>${todo.map(i => `<md-list-item type="button" data-wi-act="past" data-id="${i.id}"><md-icon slot="start">${SIGNAL[i.signal][0]}</md-icon><div slot="headline">${i.system}</div><div slot="supporting-text">${SIGNAL[i.signal][1](i)} · ${i.lastChanged}</div></md-list-item>`).join('')}</md-list>`
+        : jobNone('Nothing to explain right now.')}`;
   }
 
   // ═════════ WEB IDE CHROME: side bar views, status bar ═════════
@@ -572,19 +617,19 @@ const Senior = (() => {
       foot: `<md-filled-tonal-button data-wi-screen="repo">${sym('library_books', 'icon')}Open the repository</md-filled-tonal-button>`,
       body: `<md-outlined-text-field id="side-q" placeholder="Search docs" aria-label="Search the company repository" value="${sideQuery.replace(/"/g, '&quot;')}"><md-icon slot="leading-icon">search</md-icon></md-outlined-text-field><div id="side-docs">${docsSide()}</div>`,
     };
-    const hotRow = h => `<md-list-item type="button" data-wi-screen="hot"><md-icon slot="start">${COVER_SIDE[h.cover][0]}</md-icon><div slot="headline">${h.topic}</div><div slot="supporting-text">${h.n} questions · ${COVER_SIDE[h.cover][1]}${h.next ? ` · ${h.next}` : ''}</div></md-list-item>`;
+    const hotRow = h => { const c = hotCover(h).cover; return `<md-list-item type="button" data-wi-screen="hot"><md-icon slot="start">${COVER_SIDE[c][0]}</md-icon><div slot="headline">${h.topic}</div><div slot="supporting-text">${h.n} questions · ${COVER_SIDE[c][1]}${h.next ? ` · ${h.next}` : ''}</div></md-list-item>`; };
     const hotFoot = `<md-filled-tonal-button data-wi-screen="hot">${sym('local_fire_department', 'icon')}Open Hot spots</md-filled-tonal-button>`;
     const mineHot = inJob() ? DATA.hotspots.filter(h => JOB.re.test(h.topic)) : [];
     if (!inJob()) return {
       title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'), foot: hotFoot,
       body: `<div class="wi-note md-typescale-body-small">${sym('forum')}<span>Where new grads’ questions cluster this month.</span></div>
-        <md-list>${DATA.hotspots.map(hotRow).join('')}</md-list>`,
+        <md-list>${DATA.hotspots.map(hotRow).join('')}</md-list>${pastSide()}`,
     };
     return {
       title: 'Hot spots', acts: openPage('hot', 'Open Hot spots'), foot: hotFoot,
       body: `${jobCard('Where new grads get stuck near this job', mineHot.length ? `<md-list>${mineHot.map(hotRow).join('')}</md-list>` : jobNone('No hot spots near this job.'))}
         <div class="wi-rest md-typescale-label-large">Everywhere else</div>
-        <md-list>${DATA.hotspots.filter(h => !mineHot.includes(h)).map(hotRow).join('')}</md-list>`,
+        <md-list>${DATA.hotspots.filter(h => !mineHot.includes(h)).map(hotRow).join('')}</md-list>${pastSide()}`,
     };
   }
   function sideAfter(v, el) {
@@ -693,5 +738,5 @@ const Senior = (() => {
   }
 
   function hardReset() { interviewDone = false; restartFresh = false; flagged = null; }
-  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem };
+  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem, pastSectionHTML };
 })();

@@ -202,6 +202,7 @@ const SeniorPages = (() => {
               <td><div class="m3-next">${it && it.status === 'todo' ? `<md-text-button data-act="open-past" data-id="${it.id}">${sym('add_comment', 'icon')}Add context</md-text-button>` : ''}${h.cluster ? `<md-text-button data-sact="cluster" data-cl="${h.cluster}" trailing-icon>${h.next}${sym('arrow_forward', 'icon')}</md-text-button>` : h.next ? `<span class="m3-muted">${h.next}</span>` : ''}</div></td></tr>`; }).join('')}</tbody>
           </table>
         </section>
+        ${Senior.pastSectionHTML()}
         <section class="m3-card outlined">
           <div class="m3-card-head"><div class="m3-row-acts"><h2 class="md-typescale-title-large">Upcoming interviews</h2>${App.synth()}</div>
             <p class="md-typescale-body-medium m3-muted">Techne interviews seniors about gaps, 5 minutes at the end of their day.</p></div>
