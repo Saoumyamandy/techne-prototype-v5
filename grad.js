@@ -917,6 +917,7 @@ const Grad = (() => {
   const file = () => S?.file;
   const issue = () => S?.key;
   const inCode = () => screen === 'ide' || screen === 'save';
+  const where = () => ({ error: !!S?.error, at: S?.error ? `${S.file}:${S.errLine}` : S?.file });
   const task = () => S?.key === 'filecopy' ? 'PROC-512' : S?.file;
-  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task, issue, inCode };
+  return { init, start: restart, restart, stop, show, relayout, reset, ask, file, task, issue, inCode, where };
 })();

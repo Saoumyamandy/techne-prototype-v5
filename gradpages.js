@@ -174,18 +174,18 @@ const GradPages = (() => {
   // ── side bar views: Your twin and Learning path follow the code you have open ──
   // what each scenario is about, so the views can show what's relevant to it
   const ISSUE = {
-    checked: { what: 'Copybook not found: VENDREC', topics: ['Copybooks'], twin: 'priya', knows: 'Local COBOL builds · 24 docs, verified',
-      skill: ['COBOL builds and listings', 62, 95], steps: [['Fix a copybook error with Priya’s twin', 'now'], ['Set COBCPY once for every repo', 'next'], ['Read a compile listing', 'next']] },
-    unchecked: { what: 'Invalid numeric data in PO-AMT', topics: ['Test data'], twin: null, knows: 'Nobody’s twin covers this yet. Your workaround goes to the Question Queue.',
-      skill: ['Procurement domain', 35, 96], steps: [['Read the PO record layout in the copybook', 'next'], ['Run the PO batch in test', 'next'], ['Ask Dev K.’s twin about test data', 'later']] },
-    filecopy: { what: 'PROC-512 · PDF invoices in the nightly copy', topics: ['Vendor files', 'PDF invoices'], twin: 'priya', knows: 'Nightly vendor file copy · 11 docs, 1 inferred',
-      skill: ['Vendor files and the nightly copy', 40, 92], steps: [['PROC-512: PDF invoices in the file copy', 'now'], ['Run the PO batch in test', 'next'], ['VSAM vs the nightly export', 'later']] },
-    restart: { what: 'VENDSYNC failed at step 3 (SQLCODE -911)', topics: ['JCL', 'Vendor sync'], twin: 'priya', knows: 'Vendor sync and restarts · 18 docs, verified',
-      skill: ['Batch and JCL restarts', 15, 70], steps: [['Restart VENDSYNC from the failed step', 'now'], ['Shadow Dev K.’s twin on a JCL restart', 'next'], ['Read “Restarting a failed JCL step”', 'next']] },
+    checked: { what: 'Copybook not found: VENDREC', because: 'Because your build failed', topics: ['Copybooks'], twin: 'priya', knows: 'Local COBOL builds · 24 docs, verified',
+      skill: ['COBOL builds and listings', 62, 95], steps: [['Fix a copybook error with Priya’s twin', 'now', 'Fixes the error you have now · 4 min walkthrough'], ['Set COBCPY once for every repo', 'next', 'Stops this error coming back'], ['Read a compile listing', 'next', 'Find the line the compiler flagged']] },
+    unchecked: { what: 'Invalid numeric data in PO-AMT', because: 'Because your test run failed', topics: ['Test data'], twin: null, knows: 'Nobody’s twin covers this yet. Your workaround goes to the Question Queue.',
+      skill: ['Procurement domain', 35, 96], steps: [['Read the PO record layout in the copybook', 'next', 'Shows what PO-AMT expects'], ['Run the PO batch in test', 'next', 'Reproduce the bad data safely'], ['Ask Dev K.’s twin about test data', 'later', 'Where the test files come from']] },
+    filecopy: { what: 'PROC-512 · PDF invoices in the nightly copy', because: 'Because you’re on PROC-512', topics: ['Vendor files', 'PDF invoices'], twin: 'priya', knows: 'Nightly vendor file copy · 11 docs, 1 inferred',
+      skill: ['Vendor files and the nightly copy', 40, 92], steps: [['PROC-512: PDF invoices in the file copy', 'now', 'The ticket you’re on · Senior Techne can walk you through it'], ['Run the PO batch in test', 'next', 'Check the 2 AM batch still sees every file'], ['VSAM vs the nightly export', 'later', 'Where the copied files end up']] },
+    restart: { what: 'VENDSYNC failed at step 3 (SQLCODE -911)', because: 'Because VENDSYNC failed', topics: ['JCL', 'Vendor sync'], twin: 'priya', knows: 'Vendor sync and restarts · 18 docs, verified',
+      skill: ['Batch and JCL restarts', 15, 70], steps: [['Restart VENDSYNC from the failed step', 'now', 'Gets tonight’s run finished · 3 min walkthrough'], ['Shadow Dev K.’s twin on a JCL restart', 'next', 'How restarts work across jobs'], ['Read “Restarting a failed JCL step”', 'next', 'The team doc behind this fix']] },
   };
   const openPage = (scr, label) => `<md-icon-button data-wi-screen="${scr}" aria-label="${label}" title="${label}"><md-icon>open_in_new</md-icon></md-icon-button>`;
   const twinRow = i => `<md-list-item type="button" data-wi-screen="archive" class="${i.fresh ? 'on' : ''}"><md-icon slot="start">${TYPE[i.type][0]}</md-icon><div slot="headline">${i.title}</div><div slot="supporting-text">${TYPE[i.type][1]} · ${VIS[i.vis][1]}</div></md-list-item>`;
-  const stepRow = ([t, st]) => `<md-list-item type="button" data-wi-screen="learn" class="${st === 'now' ? 'on' : st === 'done' ? 'done' : ''}"><md-icon slot="start">${st === 'done' ? 'check_circle' : st === 'now' ? 'play_circle' : st === 'later' ? 'lock' : 'radio_button_unchecked'}</md-icon><div slot="headline">${t}</div></md-list-item>`;
+  const stepRow = ([t, st, why]) => `<md-list-item type="button" data-wi-screen="learn" class="${st === 'now' ? 'on' : st === 'done' ? 'done' : ''}"><md-icon slot="start">${st === 'done' ? 'check_circle' : st === 'now' ? 'play_circle' : st === 'later' ? 'lock' : 'radio_button_unchecked'}</md-icon><div slot="headline">${t}</div>${why ? `<div slot="supporting-text">${why}</div>` : ''}</md-list-item>`;
   const progress = () => `<div class="wi-sec md-typescale-label-large"><span>Your path</span><span>Week 2 of 6</span></div>
     <md-linear-progress value="0.333" aria-label="Onboarding: week 2 of 6"></md-linear-progress>`;
   const ctxCard = (label, I, file) => `<div class="wi-ctx"><span class="md-typescale-label-medium">${label}</span>${file ? `<span class="wi-ctx-file">${sym('description')}${file}</span>` : ''}<span class="md-typescale-body-small">${I.what}</span></div>`;
@@ -218,17 +218,23 @@ const GradPages = (() => {
       title: 'Learning path', acts: openPage('learn', 'Open the learning path'), foot,
       body: `${progress()}${L.weeks.map(w => `<div class="wi-sec md-typescale-label-large">Week ${w.w} · ${w.title}</div><md-list>${w.items.map(stepRow).join('')}</md-list>`).join('')}`,
     };
+    // everything picked for this issue sits in one card that names the issue; the general path comes after
     const [sk, me, sr] = I.skill;
     return {
       title: 'Learning path', acts: openPage('learn', 'Open the learning path'), foot,
-      body: `${ctxCard('For the issue you’re on', I)}
-        <div class="wi-skill"><div class="wi-skill-row md-typescale-body-medium"><span>${sk}</span><b>${me}%</b></div>
-          <div class="wi-bars"><i class="back" style="width:${sr}%"></i><i class="front" style="width:${me}%"></i></div>
-          <span class="md-typescale-body-small m3-muted">You ${me}% · Priya R.’s twin ${sr}%</span></div>
-        <div class="wi-sec md-typescale-label-large">Learn this next</div>
-        <md-list>${I.steps.map(stepRow).join('')}</md-list>
-        <md-text-button data-gact="quiz">${sym('diversity_3', 'icon')}Ask Priya’s twin to quiz you</md-text-button>
-        ${progress()}`,
+      body: `<section class="wi-issue" aria-label="${I.because}">
+          <div class="wi-issue-h md-typescale-label-large">${I.because}</div>
+          <div class="wi-issue-what">${sym(Grad.where().error ? 'error' : 'confirmation_number')}<div><div class="md-typescale-title-small">${I.what}</div><div class="wi-ctx-file">${Grad.where().at}</div></div></div>
+          <div class="wi-issue-sec md-typescale-label-medium">Skill this needs</div>
+          <div class="wi-skill"><div class="wi-skill-row md-typescale-body-medium"><span>${sk}</span><b>${me}%</b></div>
+            <div class="wi-bars"><i class="back" style="width:${sr}%"></i><i class="front" style="width:${me}%"></i></div>
+            <span class="md-typescale-body-small">You ${me}% · Priya R.’s twin ${sr}%</span></div>
+          <div class="wi-issue-sec md-typescale-label-medium">Learn this to fix it</div>
+          <md-list>${I.steps.map(stepRow).join('')}</md-list>
+          <md-text-button data-gact="quiz">${sym('diversity_3', 'icon')}Ask Priya’s twin to quiz you</md-text-button>
+        </section>
+        <div class="wi-rest md-typescale-label-large">The rest of your path · week 2 of 6</div>
+        <md-linear-progress value="0.333" aria-label="Onboarding: week 2 of 6"></md-linear-progress>`,
     };
   }
 
