@@ -834,5 +834,5 @@ const Senior = (() => {
   }
 
   function hardReset() { interviewDone = false; restartFresh = false; flagged = null; }
-  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem, pastSectionHTML, openPast };
+  return { init, start, restart: start, stop, show, flag, addInterviewDraft, freshRestart, receiveSent, hardReset, impactHTML, heatmap, hotCover, pastItem, pastSectionHTML, openPast, openDraft };
 })();

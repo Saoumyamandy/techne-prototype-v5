@@ -98,7 +98,7 @@ const SeniorPages = (() => {
       <md-icon-button data-sact="${closeAct}" aria-label="${closeAct === 'probe-later' ? 'Save for later' : 'Close'}" title="${closeAct === 'probe-later' ? 'Save for later' : 'Close'}">${sym('close')}</md-icon-button></div>`;
     if (probeState === 'answered') return `<div class="m3-probe m3-glass done">${head('probe-close')}
       <p class="m3-probe-thanks md-typescale-body-medium">${sym('check_circle')}<span>Thanks. Your twin drafted this into <b>Your twin’s drafts</b> for you to check before anyone sees it.</span></p>
-      <md-text-button class="m3-start" data-sact="to-drafts" trailing-icon>See your drafts${sym('arrow_forward', 'icon')}</md-text-button></div>`;
+      <md-text-button class="m3-start" data-sact="to-drafts" trailing-icon>Review the draft${sym('arrow_forward', 'icon')}</md-text-button></div>`;
     return `<div class="m3-probe m3-glass">${head('probe-later')}
       <p class="md-typescale-title-medium">${P.q}</p>
       ${status('info', P.at, 'terminal')}
@@ -404,7 +404,7 @@ const SeniorPages = (() => {
         probeState = 'answered'; Senior.freshRestart(); rerender('ide'); break;
       case 'probe-later': probeState = 'later'; App.toast('Saved for tonight’s interview.'); rerender('ide'); break;
       case 'probe-close': probeState = 'later'; rerender('ide'); break;
-      case 'to-drafts': Shell.setView('senior', 'drafts', true); break;
+      case 'to-drafts': Shell.setView('senior', 'drafts', true); Senior.openDraft('d-restart'); break;
       case 'interview': skipAnswered(); openInterview(); break;
       case 'rate-up': case 'rate-down': {
         App.toast(act === 'rate-up' ? 'Thanks. Techne will ask more questions like this.' : 'Got it. Techne will ask fewer questions like this.');
@@ -424,7 +424,7 @@ const SeniorPages = (() => {
         break;
       }
       case 'iv-close': closeInterview(true); break;
-      case 'iv-review': closeInterview(false); Senior.addInterviewDraft(); App.set({ screen: 'home' }); break;
+      case 'iv-review': closeInterview(false); Senior.addInterviewDraft(); Shell.setView('senior', 'drafts', true); Senior.openDraft(DATA.interviewDraft.id); break;
     }
   }
 
